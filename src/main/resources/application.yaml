@@ -1,0 +1,22 @@
+k8s:
+  watch:
+    scheduled: 60000
+
+watchfor:
+  log-rules:
+  - name: Check for Exceptions
+    description: check of an Exception
+    matches-in-and:
+    - how-many: 3
+      values-in-and:
+      - Exception
+      - caused by
+    selectors-in-and:
+    - namespace-match:
+      - development
+
+notifiers:
+  noop:
+    enabled: true
+  props:
+    template: Help! {{pod-namespace}}/{{pod-name}} match with rule {{rule-name}}.

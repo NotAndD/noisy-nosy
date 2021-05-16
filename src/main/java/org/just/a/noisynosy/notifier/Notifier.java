@@ -6,9 +6,11 @@ import java.util.List;
 
 import io.fabric8.kubernetes.api.model.Pod;
 
-public interface Notifier {
+public abstract class Notifier {
 
-  public void notify(Pod pod, List<RuleAnalysis> analysis);
+  public void notify(Pod pod, List<RuleAnalysis> analysis) {
+    analysis.forEach(a -> notify(pod, a));
+  }
 
-  public void notify(Pod pod, RuleAnalysis analysis);
+  public abstract void notify(Pod pod, RuleAnalysis analysis);
 }

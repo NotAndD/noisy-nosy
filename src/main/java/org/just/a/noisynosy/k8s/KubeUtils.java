@@ -1,7 +1,3 @@
-/*
- *  * Copyright 2021 Thales Italia spa.  *   * This program is not yet licensed
- * and this file may not be used under any  * circumstance.  
- */
 package org.just.a.noisynosy.k8s;
 
 import io.fabric8.kubernetes.api.model.Pod;

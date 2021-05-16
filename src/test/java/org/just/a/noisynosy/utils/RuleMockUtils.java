@@ -1,9 +1,3 @@
-/*
- * Copyright 2021 Thales Italia spa.
- * 
- * This program is not yet licensed and this file may not be used under any
- * circumstance.
- */
 package org.just.a.noisynosy.utils;
 
 import org.just.a.noisynosy.rules.Match;

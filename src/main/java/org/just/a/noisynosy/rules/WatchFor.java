@@ -24,7 +24,7 @@ public class WatchFor {
 
     if (logRules != null) {
       logRules = logRules.stream()
-          .filter(rule -> !rule.isValid()).collect(Collectors.toList());
+          .filter(rule -> rule.isValid()).collect(Collectors.toList());
     }
     validityChecked = true;
   }

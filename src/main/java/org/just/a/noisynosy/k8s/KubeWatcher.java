@@ -6,7 +6,6 @@ import org.just.a.noisynosy.handler.Handler;
 import org.just.a.noisynosy.notifier.Notifier;
 import org.just.a.noisynosy.rules.Rule;
 import org.just.a.noisynosy.rules.WatchFor;
-
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +14,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -23,6 +24,8 @@ import io.fabric8.kubernetes.api.model.Pod;
 
 @Component
 public class KubeWatcher implements Closeable {
+
+  private static final Logger LOGGER = Logger.getLogger(KubeWatcher.class.getName());
 
   private final WatchFor config;
   private final KubeClient client;
@@ -53,6 +56,8 @@ public class KubeWatcher implements Closeable {
 
   @Scheduled(initialDelay = 60000, fixedDelayString = "${k8s.watch.scheduled:60000}")
   public void peekALook() {
+    LOGGER.log(Level.INFO, "Taking a look at the cluster situation..");
+
     for (final Map.Entry<String, PodAnalyzer> entry : watches.entrySet()) {
       final List<RuleAnalysis> newlySatisfiedRules = entry.getValue().checkResults();
 
@@ -68,6 +73,15 @@ public class KubeWatcher implements Closeable {
   @PostConstruct
   public void setup() {
     config.checkValidity();
+
+    if (config.getLogRules() != null) {
+      startWatchingPodsForRules(config.getLogRules());
+    }
+  }
+
+  @Scheduled(initialDelay = 600000, fixedDelayString = "${k8s.watch.setup:600000}")
+  public void updateWatches() {
+    LOGGER.log(Level.INFO, "Updating watches..");
 
     if (config.getLogRules() != null) {
       startWatchingPodsForRules(config.getLogRules());

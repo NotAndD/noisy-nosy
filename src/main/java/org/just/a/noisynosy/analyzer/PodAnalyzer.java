@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import io.fabric8.kubernetes.api.model.Pod;
@@ -18,6 +20,8 @@ import lombok.Data;
 
 @Data
 public class PodAnalyzer implements Closeable {
+
+  private static final Logger LOGGER = Logger.getLogger(PodAnalyzer.class.getName());
 
   private final KubeClient client;
   private final Pod pod;
@@ -33,6 +37,9 @@ public class PodAnalyzer implements Closeable {
   }
 
   public void beginAnalysis() {
+    LOGGER.log(Level.INFO, () -> String.format("Beginning analysis for pod %s/%s",
+        pod.getMetadata().getNamespace(), pod.getMetadata().getName()));
+
     setup();
 
     watch = client.watchPodLogs(pod.getMetadata().getNamespace(),
@@ -54,6 +61,8 @@ public class PodAnalyzer implements Closeable {
             .collect(Collectors.toList());
 
         if (!newlySatisfiedRules.isEmpty()) {
+          LOGGER.log(Level.INFO, () -> String.format("Rule satisfied for pod %s/%s",
+              pod.getMetadata().getNamespace(), pod.getMetadata().getName()));
           result.addAll(newlySatisfiedRules);
         }
       }

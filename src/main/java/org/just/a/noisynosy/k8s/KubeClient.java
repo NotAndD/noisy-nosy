@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.LogWatch;
 
@@ -16,8 +17,8 @@ public class KubeClient implements Closeable {
 
   private final KubernetesClient client;
 
-  public KubeClient(KubernetesClient client) {
-    this.client = client;
+  public KubeClient() {
+    this.client = new DefaultKubernetesClient();
   }
 
   @Override

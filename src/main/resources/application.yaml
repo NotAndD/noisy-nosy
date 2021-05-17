@@ -1,6 +1,7 @@
 k8s:
   watch:
     scheduled: 60000
+    setup: 600000
 
 watchfor:
   log-rules:
@@ -9,8 +10,8 @@ watchfor:
     matches-in-and:
     - how-many: 3
       values-in-and:
-      - Exception
-      - caused by
+      - ERROR
+      - Caused by
     selectors-in-and:
     - namespace-match:
       - development
@@ -18,5 +19,4 @@ watchfor:
 notifiers:
   noop:
     enabled: true
-  props:
     template: Help! {{pod-namespace}}/{{pod-name}} match with rule {{rule-name}}.

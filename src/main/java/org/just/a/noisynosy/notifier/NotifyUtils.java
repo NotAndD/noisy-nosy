@@ -3,6 +3,8 @@ package org.just.a.noisynosy.notifier;
 import org.just.a.noisynosy.rules.Rule;
 
 import java.util.Date;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import io.fabric8.kubernetes.api.model.Pod;
 
@@ -15,7 +17,8 @@ public final class NotifyUtils {
   public static final String RULE_DESCRIPTION = "{{rule-description}}";
   public static final String NOW = "{{now}}";
 
-  public static String buildTemplate(String template, Pod pod, Rule rule) {
+  public static String buildTemplate(String template, Pod pod, Rule rule,
+      Map<String, String> customMappings) {
     String result = template;
 
     result = result.replace(POD_NAME, pod.getMetadata().getName())
@@ -23,6 +26,10 @@ public final class NotifyUtils {
         .replace(RULE_NAME, rule.getName())
         .replace(RULE_DESCRIPTION, rule.getDescription())
         .replace(NOW, new Date().toString());
+
+    for (final Entry<String, String> entry : customMappings.entrySet()) {
+      result = result.replace(entry.getKey(), entry.getValue());
+    }
 
     return result;
   }

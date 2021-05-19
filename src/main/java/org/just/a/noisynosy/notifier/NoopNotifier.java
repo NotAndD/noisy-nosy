@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,9 +23,9 @@ public class NoopNotifier extends Notifier {
   private String messageTemplate;
 
   @Override
-  public void notify(Pod pod, RuleAnalysis analysis) {
-    LOGGER.log(Level.INFO,
-        () -> NotifyUtils.buildTemplate(messageTemplate, pod, analysis.getRule()));
+  public void notify(Pod pod, RuleAnalysis analysis, Map<String, String> handlerActions) {
+    LOGGER.log(Level.INFO, () -> NotifyUtils.buildTemplate(messageTemplate,
+        pod, analysis.getRule(), handlerActions));
   }
 
 }

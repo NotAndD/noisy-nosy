@@ -62,10 +62,15 @@ public class KubeWatcher implements Closeable {
       final List<RuleAnalysis> newlySatisfiedRules = entry.getValue().checkResults();
 
       if (!newlySatisfiedRules.isEmpty()) {
-        handlers.forEach(handler -> handler.handle(entry.getValue().getPod(),
-            newlySatisfiedRules));
+        final Map<String, String> handlerActions = new HashMap<>();
+        handlers.forEach(handler -> {
+          final String key = handler.getNotifyKey();
+          final String val = handler.handle(entry.getValue().getPod(),
+              newlySatisfiedRules);
+          handlerActions.put(key, val);
+        });
         notifiers.forEach(notifier -> notifier.notify(entry.getValue().getPod(),
-            newlySatisfiedRules));
+            newlySatisfiedRules, handlerActions));
       }
     }
   }

@@ -15,6 +15,7 @@ public class Match {
   private List<String> valuesInOr;
 
   private Integer howMany;
+  private Integer howMuch;
 
   public boolean isValid() {
     if (valuesInAnd == null && valuesInOr == null) {

@@ -10,6 +10,7 @@ public final class RuleMockUtils {
   public static Match givenMatchInAnd(int howMany, String... values) {
     final Match result = new Match();
     result.setHowMany(howMany);
+    result.setHowMuch(60000);
     result.setValuesInAnd(new ArrayList<>());
     for (final String val : values) {
       result.getValuesInAnd().add(val);

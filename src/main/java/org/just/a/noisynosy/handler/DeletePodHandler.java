@@ -2,6 +2,7 @@ package org.just.a.noisynosy.handler;
 
 import org.just.a.noisynosy.analyzer.analysis.RuleAnalysis;
 import org.just.a.noisynosy.k8s.KubeService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -15,21 +16,39 @@ import io.fabric8.kubernetes.api.model.Pod;
     havingValue = "true")
 public class DeletePodHandler implements Handler {
 
+  public static final String DELETE_ACTION = "{{delete-action}}";
+
   private final KubeService service;
+
+  @Value("${general.base-url}")
+  private String baseUrl;
 
   public DeletePodHandler(KubeService service) {
     this.service = service;
   }
 
   @Override
-  public void handle(Pod pod, List<RuleAnalysis> analysis) {
-    analysis.forEach(a -> handle(pod, a));
+  public String getNotifyKey() {
+    return DELETE_ACTION;
   }
 
   @Override
-  public void handle(Pod pod, RuleAnalysis analysis) {
-    service.acceptToken(java.util.UUID.randomUUID().toString(),
-        pod.getMetadata().getNamespace(), pod.getMetadata().getName());
+  public String handle(Pod pod, List<RuleAnalysis> analysis) {
+    analysis.forEach(a -> handle(pod, a));
+
+    final String namespace = pod.getMetadata().getNamespace();
+    final String name = pod.getMetadata().getName();
+    return String.format("%s/pods/%s/%s/delete", baseUrl, namespace, name);
+  }
+
+  @Override
+  public String handle(Pod pod, RuleAnalysis analysis) {
+    final String namespace = pod.getMetadata().getNamespace();
+    final String name = pod.getMetadata().getName();
+    final String token = java.util.UUID.randomUUID().toString();
+    service.acceptToken(token, namespace, name);
+
+    return String.format("%s/pods/delete/%s/%s/%s", baseUrl, namespace, name, token);
   }
 
 }

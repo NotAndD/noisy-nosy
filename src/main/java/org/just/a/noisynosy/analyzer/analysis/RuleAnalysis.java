@@ -48,6 +48,11 @@ public class RuleAnalysis {
     return isSatisfied();
   }
 
+  public void reset() {
+    isSatisfied = false;
+    matchAnalysis.forEach(MatchAnalysis::reset);
+  }
+
   public boolean wasSatisfied() {
     return isSatisfied;
   }

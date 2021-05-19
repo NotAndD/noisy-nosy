@@ -1,3 +1,8 @@
+server.port: 8080
+
+general:
+  base-url: http://localhost:8080
+
 k8s:
   watch:
     scheduled: 60000
@@ -9,6 +14,7 @@ watchfor:
     description: check of an Exception
     matches-in-and:
     - how-many: 3
+      how-much: 120000
       values-in-and:
       - ERROR
       - Caused by
@@ -16,7 +22,15 @@ watchfor:
     - namespace-match:
       - development
 
+handlers:
+  delete-pod:
+    enabled: true
+
 notifiers:
   noop:
     enabled: true
-    template: Help! {{pod-namespace}}/{{pod-name}} match with rule {{rule-name}}.
+    template: "Help!\n\nLooks like {{pod-namespace}}/{{pod-name}} has a match with rule {{rule-name}}. I can do the following:\n\n - delete the pod with {{delete-action}}"
+  slack:
+    enabled: false
+    url: endpoint-for-slack-here
+    template: "Help!\n\nLooks like {{pod-namespace}}/{{pod-name}} has a match with rule {{rule-name}}. I can do the following:\n\n - Yes, delete the pod {{delete-action}}"

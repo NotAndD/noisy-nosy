@@ -8,6 +8,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import io.fabric8.kubernetes.api.model.Pod;
@@ -33,11 +35,14 @@ public class SlackNotifier extends Notifier {
   }
 
   @Override
-  public void notify(Pod pod, RuleAnalysis analysis) {
-    final String message =
-        NotifyUtils.buildTemplate(messageTemplate, pod, analysis.getRule());
+  public void notify(Pod pod, RuleAnalysis analysis, Map<String, String> handlerActions) {
+    final String message = NotifyUtils.buildTemplate(messageTemplate, pod,
+        analysis.getRule(), handlerActions);
     final SlackRequest request = new SlackRequest(message);
 
+    LOGGER.log(Level.INFO,
+        () -> String.format("Forwarding a Slack message for %s/%s to slack API url",
+            pod.getMetadata().getNamespace(), pod.getMetadata().getName()));
     template.postForLocation(apiUrl, request);
   }
 }

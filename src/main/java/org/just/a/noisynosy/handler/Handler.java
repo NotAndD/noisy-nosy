@@ -8,7 +8,9 @@ import io.fabric8.kubernetes.api.model.Pod;
 
 public interface Handler {
 
-  public void handle(Pod pod, List<RuleAnalysis> analysis);
+  public String getNotifyKey();
 
-  public void handle(Pod pod, RuleAnalysis analysis);
+  public String handle(Pod pod, List<RuleAnalysis> analysis);
+
+  public String handle(Pod pod, RuleAnalysis analysis);
 }

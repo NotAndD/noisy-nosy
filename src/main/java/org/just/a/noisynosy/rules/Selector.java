@@ -15,13 +15,14 @@ public class Selector {
 
   private Map<String, String> labelsMatch;
   private List<String> namespaceMatch;
+  private List<String> podStartsWith;
 
   public boolean doesItSelect(Pod pod) {
-    return doNamespaceMatches(pod) && doLabelsMatches(pod);
+    return doNamespaceMatches(pod) && doLabelsMatches(pod) && doPodStartsWith(pod);
   }
 
   public boolean isValid() {
-    if (labelsMatch == null && namespaceMatch == null) {
+    if (labelsMatch == null && namespaceMatch == null && podStartsWith == null) {
       LOGGER.log(Level.WARNING, "Empty selector is not allowed.");
       return false;
     }
@@ -42,5 +43,10 @@ public class Selector {
   private boolean doNamespaceMatches(Pod pod) {
     return namespaceMatch == null
         || namespaceMatch.stream().anyMatch(n -> n.equals(pod.getMetadata().getNamespace()));
+  }
+
+  private boolean doPodStartsWith(Pod pod) {
+    return podStartsWith == null
+        || podStartsWith.stream().anyMatch(s -> pod.getMetadata().getName().startsWith(s));
   }
 }

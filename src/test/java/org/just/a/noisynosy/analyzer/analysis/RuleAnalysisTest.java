@@ -1,10 +1,9 @@
 package org.just.a.noisynosy.analyzer.analysis;
 
-import org.just.a.noisynosy.rules.Rule;
-import org.just.a.noisynosy.utils.RuleMockUtils;
-
 import org.junit.Assert;
 import org.junit.Test;
+import org.just.a.noisynosy.rules.Rule;
+import org.just.a.noisynosy.utils.RuleMockUtils;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -13,6 +12,84 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class RuleAnalysisTest {
+
+  @Test
+  public void rule_should_match_in_two_pieces() throws Exception {
+    final String firstPart = "Welcome!\n"
+        + "to the first part of the log\n"
+        + "which is pretty amazing but useless\n"
+        + "because this will not match\n"
+        + "without a second part.";
+    final String secondPart = "Luckily for you\n"
+        + "I come just in time\n"
+        + "to let the rule you are testing\n"
+        + "match correctly!";
+
+    final Rule rule = RuleMockUtils.givenRuleInAnd(
+        RuleMockUtils.givenMatchInAnd(2, "match"));
+    final RuleAnalysis analysis = new RuleAnalysis(rule);
+    makeAnalysisConsumeLog(analysis, firstPart);
+
+    Thread.sleep(30000L);
+
+    makeAnalysisConsumeLog(analysis, secondPart);
+
+    Assert.assertTrue(analysis.isSatisfied());
+  }
+
+  @Test
+  public void rule_should_match_word_aaa() {
+    final String shortLog = "Hey there!\n"
+        + "Did I tell you of that time where\n"
+        + "I went to aaa and, I dunno how\n"
+        + "but I found myself in bbb instead?\n"
+        + "Crazy, right?\n"
+        + "Luckily I reached aaa just in time for\n"
+        + "the aaa-event which was there, wuff.";
+
+    final Rule rule = RuleMockUtils.givenRuleInAnd(
+        RuleMockUtils.givenMatchInOr(3, "aaa", "ccc"));
+    final RuleAnalysis analysis = new RuleAnalysis(rule);
+    makeAnalysisConsumeLog(analysis, shortLog);
+
+    Assert.assertTrue(analysis.isSatisfied());
+  }
+
+  @Test
+  public void rule_should_match_word_ccc() {
+    final String shortLog = "Hey there!\n"
+        + "Did I tell you of that time where\n"
+        + "I went to aaa and, I dunno how\n"
+        + "but I found myself in bbb instead?\n"
+        + "Crazy, right? I decided to change plans.\n"
+        + "Luckily I reached ccc just in time for\n"
+        + "the ccc-event which was there, wuff.";
+
+    final Rule rule = RuleMockUtils.givenRuleInAnd(
+        RuleMockUtils.givenMatchInOr(2, "aaa", "ccc"));
+    final RuleAnalysis analysis = new RuleAnalysis(rule);
+    makeAnalysisConsumeLog(analysis, shortLog);
+
+    Assert.assertTrue(analysis.isSatisfied());
+  }
+
+  @Test
+  public void rule_should_match_word_overlay() {
+    final String shortLog = "Huhu\n"
+        + "the overlay sometimes\n"
+        + "is as incredible as an error\n"
+        + "or an Exception which is unexpected\n"
+        + "usually, except when the overlay\n"
+        + "is activated.";
+
+    final Rule rule = RuleMockUtils.givenRuleInOr(
+        RuleMockUtils.givenMatchInAnd(3, "sometimes"),
+        RuleMockUtils.givenMatchInAnd(2, "overlay"));
+    final RuleAnalysis analysis = new RuleAnalysis(rule);
+    makeAnalysisConsumeLog(analysis, shortLog);
+
+    Assert.assertTrue(analysis.isSatisfied());
+  }
 
   @Test
   public void rule_should_match_word_sometimes() {
@@ -76,6 +153,66 @@ public class RuleAnalysisTest {
   }
 
   @Test
+  public void rule_should_not_match_in_two_pieces() throws Exception {
+    final String firstPart = "Welcome!\n"
+        + "to the first part of the log\n"
+        + "which is pretty amazing but useless\n"
+        + "because this will not match\n"
+        + "without a second part.";
+    final String secondPart = "Luckily for you\n"
+        + "I come just in time\n"
+        + "to let the rule you are testing\n"
+        + "match correctly!";
+
+    final Rule rule = RuleMockUtils.givenRuleInAnd(
+        RuleMockUtils.givenMatchInAnd(2, "match"));
+    final RuleAnalysis analysis = new RuleAnalysis(rule);
+    makeAnalysisConsumeLog(analysis, firstPart);
+
+    Thread.sleep(70000L);
+
+    makeAnalysisConsumeLog(analysis, secondPart);
+
+    Assert.assertFalse(analysis.isSatisfied());
+  }
+
+  @Test
+  public void rule_should_not_match_word_ccc() {
+    final String shortLog = "Hey there!\n"
+        + "Did I tell you of that time where\n"
+        + "I went to aaa and, I dunno how\n"
+        + "but I found myself in bbb instead?\n"
+        + "Crazy, right? I decided to change plans.\n"
+        + "Luckily I reached ccc just in time for\n"
+        + "the ccc-event which was there, wuff.";
+
+    final Rule rule = RuleMockUtils.givenRuleInAnd(
+        RuleMockUtils.givenMatchInOr(4, "aaa", "ccc"));
+    final RuleAnalysis analysis = new RuleAnalysis(rule);
+    makeAnalysisConsumeLog(analysis, shortLog);
+
+    Assert.assertFalse(analysis.isSatisfied());
+  }
+
+  @Test
+  public void rule_should_not_match_word_overlay() {
+    final String shortLog = "Huhu\n"
+        + "the overlay sometimes\n"
+        + "is as incredible as an error\n"
+        + "or an Exception which is unexpected\n"
+        + "usually, except when the overlay\n"
+        + "is activated.";
+
+    final Rule rule = RuleMockUtils.givenRuleInAnd(
+        RuleMockUtils.givenMatchInAnd(3, "sometimes"),
+        RuleMockUtils.givenMatchInAnd(2, "overlay"));
+    final RuleAnalysis analysis = new RuleAnalysis(rule);
+    makeAnalysisConsumeLog(analysis, shortLog);
+
+    Assert.assertFalse(analysis.isSatisfied());
+  }
+
+  @Test
   public void rule_should_not_match_word_sometimes() {
     final String shortLog = "Welcome!\n"
         + "Sometimes things work\n"
@@ -90,6 +227,26 @@ public class RuleAnalysisTest {
     final RuleAnalysis analysis = new RuleAnalysis(rule);
 
     makeAnalysisConsumeLog(analysis, shortLog);
+
+    Assert.assertFalse(analysis.isSatisfied());
+  }
+
+  @Test
+  public void should_reset_if_it_was_satisfied() {
+    final String shortLog = "Hey there!\n"
+        + "Did I tell you of that time where\n"
+        + "I went to aaa and, I dunno how\n"
+        + "but I found myself in bbb instead?\n"
+        + "Crazy, right?\n"
+        + "Luckily I reached aaa just in time for\n"
+        + "the aaa-event which was there, wuff.";
+
+    final Rule rule = RuleMockUtils.givenRuleInAnd(
+        RuleMockUtils.givenMatchInOr(3, "aaa", "ccc"));
+    final RuleAnalysis analysis = new RuleAnalysis(rule);
+    makeAnalysisConsumeLog(analysis, shortLog);
+
+    analysis.reset();
 
     Assert.assertFalse(analysis.isSatisfied());
   }

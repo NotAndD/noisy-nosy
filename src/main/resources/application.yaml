@@ -10,14 +10,19 @@ k8s:
 
 watchfor:
   log-rules:
-  - name: Check for Exceptions
-    description: check of an Exception
-    matches-in-and:
+  - name: generic-exception-check
+    description: a generic check to find Exceptions
+    matches-in-or:
     - how-many: 3
       how-much: 120000
       values-in-and:
       - ERROR
       - Caused by
+    - how-many: 3
+      how-much: 120000
+      values-in-and:
+      - ERROR
+      - Exception
     selectors-in-and:
     - namespace-match:
       - development
@@ -25,12 +30,16 @@ watchfor:
 handlers:
   delete-pod:
     enabled: true
+  reset-analysis:
+    enabled: true
 
 notifiers:
   noop:
     enabled: true
-    template: "Help!\n\nLooks like {{pod-namespace}}/{{pod-name}} has a match with rule {{rule-name}}. I can do the following:\n\n - delete the pod with {{delete-action}}"
+    single-template: "Looks like {{pod-namespace}}/{{pod-name}} has a match with {{rule-description}}. I could do the following:\n\n - delete the pod with {{delete-action}}\n - reset the analysis with {{reset-action}}"
+    multiple-template: "Looks like {{pod-namespace}}/{{pod-name}} has a match with multiple rules, such as {{rule-description-0}}, {{rule-description-1}} and so on.  I could do the following:\n\n - delete the pod with {{delete-action}}\n - reset the analysis with {{reset-action}}"
   slack:
     enabled: false
-    url: endpoint-for-slack-here
-    template: "Help!\n\nLooks like {{pod-namespace}}/{{pod-name}} has a match with rule {{rule-name}}. I can do the following:\n\n - Yes, delete the pod {{delete-action}}"
+    url: endpoint-for-slack-goes-here
+    single-template: "Help!\nLooks like {{pod-namespace}}/{{pod-name}} has a match with {{rule-description}}. Should I do something about it?\n - Yes, <{{delete-action}}|delete> the pod\n - Nah, <{{reset-action}}|false alarm>"
+    multiple-template: "Help!\nLooks like {{pod-namespace}}/{{pod-name}} has a match with multiple rules, such as {{rule-description-0}}, {{rule-description-1}} and so on. Should I do something about it?\n - Yes, <{{delete-action}}|delete> the pod\n - Nah, <{{reset-action}}|false alarm>"

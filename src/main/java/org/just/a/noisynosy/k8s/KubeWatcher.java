@@ -75,6 +75,13 @@ public class KubeWatcher implements Closeable {
     }
   }
 
+  public void resetAnalysis(String namespace, String name, String ruleName) {
+    final String podKey = KubeUtils.getPodKey(namespace, name);
+    if (watches.containsKey(podKey)) {
+      watches.get(podKey).resetAnalysis(ruleName);
+    }
+  }
+
   @PostConstruct
   public void setup() {
     config.checkValidity();

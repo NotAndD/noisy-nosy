@@ -34,11 +34,12 @@ public class DeletePodHandler implements Handler {
 
   @Override
   public String handle(Pod pod, List<RuleAnalysis> analysis) {
-    analysis.forEach(a -> handle(pod, a));
+    String result = null;
+    if (!analysis.isEmpty()) {
+      result = handle(pod, analysis.get(0));
+    }
 
-    final String namespace = pod.getMetadata().getNamespace();
-    final String name = pod.getMetadata().getName();
-    return String.format("%s/pods/%s/%s/delete", baseUrl, namespace, name);
+    return result;
   }
 
   @Override
@@ -48,7 +49,7 @@ public class DeletePodHandler implements Handler {
     final String token = java.util.UUID.randomUUID().toString();
     service.acceptToken(token, namespace, name);
 
-    return String.format("%s/pods/delete/%s/%s/%s", baseUrl, namespace, name, token);
+    return String.format("%s/api/pods/delete/%s/%s/%s", baseUrl, namespace, name, token);
   }
 
 }

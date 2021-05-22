@@ -19,11 +19,33 @@ public final class RuleMockUtils {
     return result;
   }
 
+  public static Match givenMatchInOr(int howMany, String... values) {
+    final Match result = new Match();
+    result.setHowMany(howMany);
+    result.setHowMuch(60000);
+    result.setValuesInOr(new ArrayList<>());
+    for (final String val : values) {
+      result.getValuesInOr().add(val);
+    }
+
+    return result;
+  }
+
   public static Rule givenRuleInAnd(Match... matches) {
     final Rule result = new Rule();
     result.setMatchesInAnd(new ArrayList<>());
     for (final Match val : matches) {
       result.getMatchesInAnd().add(val);
+    }
+
+    return result;
+  }
+
+  public static Rule givenRuleInOr(Match... matches) {
+    final Rule result = new Rule();
+    result.setMatchesInOr(new ArrayList<>());
+    for (final Match val : matches) {
+      result.getMatchesInOr().add(val);
     }
 
     return result;

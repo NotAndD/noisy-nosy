@@ -82,6 +82,14 @@ public class PodAnalyzer implements Closeable {
     }
   }
 
+  public void resetAnalysis(String ruleName) {
+    analysis.forEach(a -> {
+      if (ruleName == null || ruleName.equals(a.getRule().getName())) {
+        a.reset();
+      }
+    });
+  }
+
   private void setup() {
     if (logStream == null) {
       logStream = new ByteArrayOutputStream();

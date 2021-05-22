@@ -40,7 +40,7 @@ public class KubeClient implements Closeable {
 
   public LogWatch watchPodLogs(String namespace, String name, OutputStream out) {
     return client.pods().inNamespace(namespace)
-        .withName(name).tailingLines(100).watchLog(out);
+        .withName(name).tailingLines(1).watchLog(out);
   }
 
 }

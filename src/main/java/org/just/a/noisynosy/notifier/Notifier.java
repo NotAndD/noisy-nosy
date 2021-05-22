@@ -12,6 +12,6 @@ public interface Notifier {
   public void notify(Pod pod, List<RuleAnalysis> analysis,
       Map<String, String> handlerActions);
 
-  public abstract void notify(Pod pod, RuleAnalysis analysis,
+  public void notify(Pod pod, RuleAnalysis analysis,
       Map<String, String> handlerActions);
 }

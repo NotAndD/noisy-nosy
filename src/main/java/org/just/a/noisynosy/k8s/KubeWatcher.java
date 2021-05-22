@@ -11,9 +11,13 @@ import org.springframework.stereotype.Component;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -100,8 +104,29 @@ public class KubeWatcher implements Closeable {
     }
   }
 
+  private void cleanupUnusedWatches(Set<String> keysFound) {
+    final List<String> keysToRemove = new ArrayList<>();
+    for (final Entry<String, PodAnalyzer> entry : watches.entrySet()) {
+      if (!keysFound.contains(entry.getKey())) {
+        keysToRemove.add(entry.getKey());
+      }
+    }
+
+    keysToRemove.forEach(key -> {
+      try {
+        watches.get(key).close();
+        watches.remove(key);
+        LOGGER.log(Level.INFO, () -> "Stopping watcher for " + key);
+      } catch (final IOException e) {
+        LOGGER.log(Level.SEVERE, "Unable to close watcher for " + key, e);
+      }
+    });
+  }
+
   private void startWatchingPodsForRules(List<Rule> rules) {
     final List<Pod> pods = client.getPods();
+    final Set<String> keysFound = new HashSet<>();
+
     for (final Pod pod : pods) {
       final String podKey = KubeUtils.getPodKey(pod);
 
@@ -115,7 +140,10 @@ public class KubeWatcher implements Closeable {
           watches.get(podKey).beginAnalysis();
         }
       }
+      keysFound.add(podKey);
     }
+
+    cleanupUnusedWatches(keysFound);
   }
 
 }

@@ -4,6 +4,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import lombok.Data;
@@ -13,6 +15,8 @@ import lombok.Data;
 @ConfigurationProperties(prefix = "watchfor")
 public class WatchFor {
 
+  private static final Logger LOGGER = Logger.getLogger(WatchFor.class.getName());
+
   private List<Rule> logRules;
 
   private boolean validityChecked = false;
@@ -21,12 +25,15 @@ public class WatchFor {
     if (validityChecked) {
       return;
     }
+    LOGGER.log(Level.INFO, "Validating watch configuration..");
 
     if (logRules != null) {
       logRules = logRules.stream()
-          .filter(rule -> rule.isValid()).collect(Collectors.toList());
+          .filter(Rule::isValid)
+          .collect(Collectors.toList());
     }
     validityChecked = true;
+    LOGGER.log(Level.INFO, "Validating watch configuration.. done");
   }
 
 }

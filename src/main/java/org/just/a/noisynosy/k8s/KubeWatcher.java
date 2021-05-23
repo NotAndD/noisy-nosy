@@ -77,6 +77,8 @@ public class KubeWatcher implements Closeable {
             newlySatisfiedRules, handlerActions));
       }
     }
+
+    LOGGER.log(Level.INFO, "Taking a look at the cluster situation.. done");
   }
 
   public void resetAnalysis(String namespace, String name, String ruleName) {
@@ -102,6 +104,8 @@ public class KubeWatcher implements Closeable {
     if (config.getLogRules() != null) {
       startWatchingPodsForRules(config.getLogRules());
     }
+
+    LOGGER.log(Level.INFO, "Updating watches.. done");
   }
 
   private void cleanupUnusedWatches(Set<String> keysFound) {

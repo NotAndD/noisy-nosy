@@ -16,12 +16,10 @@ watchfor:
     - how-many: 3
       how-much: 120000
       values-in-and:
-      - ERROR
       - Caused by
     - how-many: 3
       how-much: 120000
       values-in-and:
-      - ERROR
       - Exception
     selectors-in-and:
     - namespace-match:
@@ -36,10 +34,10 @@ handlers:
 notifiers:
   noop:
     enabled: true
-    single-template: "Looks like {{pod-namespace}}/{{pod-name}} has a match with {{rule-description}}. I could do the following:\n\n - delete the pod with {{delete-action}}\n - reset the analysis with {{reset-action}}"
-    multiple-template: "Looks like {{pod-namespace}}/{{pod-name}} has a match with multiple rules, such as {{rule-description-0}}, {{rule-description-1}} and so on.  I could do the following:\n\n - delete the pod with {{delete-action}}\n - reset the analysis with {{reset-action}}"
+    single-template: "Looks like {{pod-namespace}}/{{pod-name}} has a match with: {{rule-description}}. I could do the following:\n\n - delete the pod with {{delete-action}}\n - reset the analysis with {{reset-action}}"
+    multiple-template: "Looks like {{pod-namespace}}/{{pod-name}} has a match with multiple rules, such as: {{rule-description-0}}, {{rule-description-1}} and so on.  I could do the following:\n\n - delete the pod with {{delete-action}}\n - reset the analysis with {{reset-action}}"
   slack:
     enabled: false
     url: endpoint-for-slack-goes-here
-    single-template: "Help!\nLooks like {{pod-namespace}}/{{pod-name}} has a match with {{rule-description}}. Should I do something about it?\n - Yes, <{{delete-action}}|delete> the pod\n - Nah, <{{reset-action}}|false alarm>"
-    multiple-template: "Help!\nLooks like {{pod-namespace}}/{{pod-name}} has a match with multiple rules, such as {{rule-description-0}}, {{rule-description-1}} and so on. Should I do something about it?\n - Yes, <{{delete-action}}|delete> the pod\n - Nah, <{{reset-action}}|false alarm>"
+    single-template: "Help!\nLooks like {{pod-namespace}}/{{pod-name}} has a match with: {{rule-description}}. Should I do something about it?\n - Yes, <{{delete-action}}|delete> the pod\n - Nah, <{{reset-action}}|false alarm>"
+    multiple-template: "Help!\nLooks like {{pod-namespace}}/{{pod-name}} has a match with multiple rules, such as: {{rule-description-0}}, {{rule-description-1}} and so on. Should I do something about it?\n - Yes, <{{delete-action}}|delete> the pod\n - Nah, <{{reset-action}}|false alarm>"

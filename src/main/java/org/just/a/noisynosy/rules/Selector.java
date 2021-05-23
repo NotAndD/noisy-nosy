@@ -22,10 +22,14 @@ public class Selector {
   }
 
   public boolean isValid() {
-    if (labelsMatch == null && namespaceMatch == null && podStartsWith == null) {
-      LOGGER.log(Level.WARNING, "Empty selector is not allowed.");
+    if (labelsMatch == null && namespaceMatch == null && podStartsWith == null
+        || labelsMatch != null && labelsMatch.isEmpty()
+        || namespaceMatch != null && namespaceMatch.isEmpty()
+        || podStartsWith != null && podStartsWith.isEmpty()) {
+      LOGGER.log(Level.WARNING, "Empty selector is not allowed, discarded.");
       return false;
     }
+
     return true;
   }
 

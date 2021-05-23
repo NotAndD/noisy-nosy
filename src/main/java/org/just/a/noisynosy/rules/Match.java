@@ -18,13 +18,16 @@ public class Match {
   private Integer howMuch;
 
   public boolean isValid() {
-    if (valuesInAnd == null && valuesInOr == null) {
-      LOGGER.log(Level.WARNING, "Empty match is not allowed.");
+    if (valuesInAnd == null && valuesInOr == null
+        || valuesInAnd != null && valuesInAnd.isEmpty()
+        || valuesInOr != null && valuesInOr.isEmpty()) {
+      LOGGER.log(Level.WARNING, "Empty match is not allowed, discarded.");
       return false;
     }
+
     if (howMany == null || howMany < 1) {
-      LOGGER.log(Level.WARNING, "Empty match is not allowed.");
-      howMany = 1;
+      LOGGER.log(Level.WARNING, "Empty match is not allowed, discarded.");
+      return false;
     }
 
     return true;

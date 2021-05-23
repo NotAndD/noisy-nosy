@@ -27,9 +27,11 @@ public class MatchAnalysis {
 
   public boolean isSatisfiedWith(String line) {
     final Date now = new Date();
-    matchDates = matchDates.stream()
-        .filter(d -> d.getTime() >= now.getTime() - match.getHowMuch())
-        .collect(Collectors.toList());
+    if (match.getHowMuch() != null) {
+      matchDates = matchDates.stream()
+          .filter(d -> d.getTime() >= now.getTime() - match.getHowMuch())
+          .collect(Collectors.toList());
+    }
 
     if (match.getValuesInAnd() != null && match.getValuesInAnd()
         .stream().allMatch(p -> line.contains(p))

@@ -26,24 +26,46 @@ public class Rule {
   }
 
   public boolean isValid() {
+    LOGGER.log(Level.INFO,
+        () -> "Checking validity of rule " + (name == null ? "<null name>" : name));
     if (name == null || description == null) {
-      LOGGER.log(Level.WARNING, "Rules mus have both name and description");
+      LOGGER.log(Level.WARNING, "Rules must have both name and description, discarded.");
       return false;
     }
 
-    if (selectorsInAnd != null && selectorsInOr != null) {
-      LOGGER.log(Level.WARNING, "Rules cannot have selectors both in AND and OR");
+    return areSelectorsValid() && areMatchesValid();
+  }
+
+  private boolean areMatchesValid() {
+    if (matchesInAnd != null && matchesInOr != null) {
+      LOGGER.log(Level.WARNING, "Rules cannot have matches both in AND and OR, discarded.");
       return false;
     }
-    if (matchesInAnd != null && matchesInOr != null) {
-      LOGGER.log(Level.WARNING, "Rules cannot have matches both in AND and OR");
+    if (matchesInAnd == null && matchesInOr == null
+        || matchesInAnd != null && matchesInAnd.isEmpty()
+        || matchesInOr != null && matchesInOr.isEmpty()) {
+      LOGGER.log(Level.WARNING, "Rules without matches are not allowed, discarded.");
+      return false;
+    }
+
+    return (matchesInAnd == null || matchesInAnd.stream().allMatch(Match::isValid))
+        && (matchesInOr == null || matchesInOr.stream().allMatch(Match::isValid));
+  }
+
+  private boolean areSelectorsValid() {
+    if (selectorsInAnd != null && selectorsInOr != null) {
+      LOGGER.log(Level.WARNING, "Rules cannot have selectors both in AND and OR, discarded.");
+      return false;
+    }
+    if (selectorsInAnd == null && selectorsInOr == null
+        || selectorsInAnd != null && selectorsInAnd.isEmpty()
+        || selectorsInOr != null && selectorsInOr.isEmpty()) {
+      LOGGER.log(Level.WARNING, "Rules without selectors are not allowed, discarded.");
       return false;
     }
 
     return (selectorsInAnd == null || selectorsInAnd.stream().allMatch(Selector::isValid))
-        && (selectorsInOr == null || selectorsInOr.stream().allMatch(Selector::isValid))
-        && (matchesInAnd == null || matchesInAnd.stream().allMatch(Match::isValid))
-        && (matchesInOr == null || matchesInOr.stream().allMatch(Match::isValid));
+        && (selectorsInOr == null || selectorsInOr.stream().allMatch(Selector::isValid));
   }
 
   private boolean doSelectorsInAndMatches(Pod pod) {

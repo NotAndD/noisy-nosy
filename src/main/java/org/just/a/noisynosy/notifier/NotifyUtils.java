@@ -1,6 +1,6 @@
 package org.just.a.noisynosy.notifier;
 
-import org.just.a.noisynosy.rules.Rule;
+import org.just.a.noisynosy.analyzer.analysis.RuleAnalysis;
 
 import java.util.Date;
 import java.util.List;
@@ -16,22 +16,28 @@ public final class NotifyUtils {
 
   public static final String RULE_NAME = "{{rule-name}}";
   public static final String RULE_DESCRIPTION = "{{rule-description}}";
+  public static final String SATISFIED_EXPLANATION = "{{satisfied-explanation}}";
   public static final String NOW = "{{now}}";
 
   public static final String MULTI_RULE_NAME = "{{rule-name-%s}}";
   public static final String MULTI_RULE_DESCRIPTION = "{{rule-description-%s}}";
+  public static final String MULTI_SATISFIED_EXPLANATION = "{{satisfied-explanation-%s}}";
 
-  public static String buildTemplate(String template, Pod pod, List<Rule> rules,
-      Map<String, String> customMappings) {
+  public static String buildTemplate(String template, Pod pod,
+      List<RuleAnalysis> rulesAnalysis, Map<String, String> customMappings) {
     String result = template;
 
     result = result.replace(POD_NAME, pod.getMetadata().getName())
         .replace(POD_NAMESPACE, pod.getMetadata().getNamespace())
         .replace(NOW, new Date().toString());
 
-    for (int i = 0; i < rules.size(); i++) {
-      result = result.replace(String.format(MULTI_RULE_NAME, i), rules.get(i).getName())
-          .replace(String.format(MULTI_RULE_DESCRIPTION, i), rules.get(i).getDescription());
+    for (int i = 0; i < rulesAnalysis.size(); i++) {
+      final RuleAnalysis analysis = rulesAnalysis.get(i);
+      result = result.replace(String.format(MULTI_RULE_NAME, i), analysis.getRule().getName())
+          .replace(String.format(MULTI_RULE_DESCRIPTION, i),
+              analysis.getRule().getDescription())
+          .replace(String.format(MULTI_SATISFIED_EXPLANATION, i),
+              analysis.getSatisfiedExplanation());
     }
 
     for (final Entry<String, String> entry : customMappings.entrySet()) {
@@ -41,14 +47,15 @@ public final class NotifyUtils {
     return result;
   }
 
-  public static String buildTemplate(String template, Pod pod, Rule rule,
+  public static String buildTemplate(String template, Pod pod, RuleAnalysis analysis,
       Map<String, String> customMappings) {
     String result = template;
 
     result = result.replace(POD_NAME, pod.getMetadata().getName())
         .replace(POD_NAMESPACE, pod.getMetadata().getNamespace())
-        .replace(RULE_NAME, rule.getName())
-        .replace(RULE_DESCRIPTION, rule.getDescription())
+        .replace(RULE_NAME, analysis.getRule().getName())
+        .replace(RULE_DESCRIPTION, analysis.getRule().getDescription())
+        .replace(SATISFIED_EXPLANATION, analysis.getSatisfiedExplanation())
         .replace(NOW, new Date().toString());
 
     for (final Entry<String, String> entry : customMappings.entrySet()) {

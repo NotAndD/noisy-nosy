@@ -1,5 +1,6 @@
 package org.just.a.noisynosy.analyzer.analysis;
 
+import org.just.a.noisynosy.analyzer.analysis.log.MatchingLog;
 import org.just.a.noisynosy.rules.Match;
 
 import java.util.ArrayList;
@@ -14,22 +15,27 @@ public class MatchAnalysis {
 
   private Match match;
 
-  private List<Date> matchDates;
+  private List<MatchingLog> matches;
 
   public MatchAnalysis(Match match) {
     this.match = match;
-    this.matchDates = new ArrayList<>();
+    this.matches = new ArrayList<>();
+  }
+
+  public String getSatisfiedExplanation() {
+    return String.join("\n", matches.stream()
+        .map(m -> m.getLine()).collect(Collectors.toList()));
   }
 
   public boolean isSatisfied() {
-    return matchDates.size() >= match.getHowMany();
+    return matches.size() >= match.getHowMany();
   }
 
   public boolean isSatisfiedWith(String line) {
     final Date now = new Date();
     if (match.getHowMuch() != null) {
-      matchDates = matchDates.stream()
-          .filter(d -> d.getTime() >= now.getTime() - match.getHowMuch())
+      matches = matches.stream()
+          .filter(m -> m.isAfter(now.getTime() - match.getHowMuch()))
           .collect(Collectors.toList());
     }
 
@@ -37,14 +43,14 @@ public class MatchAnalysis {
         .stream().allMatch(p -> line.contains(p))
         || match.getValuesInOr() != null && match.getValuesInOr()
             .stream().anyMatch(p -> line.contains(p))) {
-      matchDates.add(now);
+      matches.add(new MatchingLog(line, now));
     }
 
     return isSatisfied();
   }
 
   public void reset() {
-    matchDates = new ArrayList<>();
+    matches = new ArrayList<>();
   }
 
 }

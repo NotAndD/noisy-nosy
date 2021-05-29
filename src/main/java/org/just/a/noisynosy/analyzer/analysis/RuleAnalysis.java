@@ -29,6 +29,13 @@ public class RuleAnalysis {
     }
   }
 
+  public String getSatisfiedExplanation() {
+    return String.join("\n\n", matchAnalysis.stream()
+        .filter(MatchAnalysis::isSatisfied)
+        .map(MatchAnalysis::getSatisfiedExplanation)
+        .collect(Collectors.toList()));
+  }
+
   public boolean isSatisfied() {
     if (isSatisfied) {
       return true;

@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import io.fabric8.kubernetes.api.model.Pod;
 
@@ -46,8 +45,7 @@ public class SlackNotifier implements Notifier {
       notify(pod, analysis.get(0), handlerActions);
     } else {
       final String message = NotifyUtils.buildTemplate(multipleTemplate, pod,
-          analysis.stream().map(a -> a.getRule()).collect(Collectors.toList()),
-          handlerActions);
+          analysis, handlerActions);
       sendSlackMessage(message, pod.getMetadata().getNamespace(), pod.getMetadata().getName());
     }
   }
@@ -55,7 +53,7 @@ public class SlackNotifier implements Notifier {
   @Override
   public void notify(Pod pod, RuleAnalysis analysis, Map<String, String> handlerActions) {
     final String message = NotifyUtils.buildTemplate(singleTemplate, pod,
-        analysis.getRule(), handlerActions);
+        analysis, handlerActions);
     sendSlackMessage(message, pod.getMetadata().getNamespace(), pod.getMetadata().getName());
   }
 

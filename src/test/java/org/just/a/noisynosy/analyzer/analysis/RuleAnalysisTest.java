@@ -35,6 +35,8 @@ public class RuleAnalysisTest {
     makeAnalysisConsumeLog(analysis, secondPart);
 
     Assert.assertTrue(analysis.isSatisfied());
+    Assert.assertEquals("because this will not match\n"
+        + "match correctly!", analysis.getSatisfiedExplanation());
   }
 
   @Test
@@ -53,6 +55,10 @@ public class RuleAnalysisTest {
     makeAnalysisConsumeLog(analysis, shortLog);
 
     Assert.assertTrue(analysis.isSatisfied());
+    Assert.assertEquals("I went to aaa and, I dunno how\n"
+        + "Luckily I reached aaa just in time for\n"
+        + "the aaa-event which was there, wuff.",
+        analysis.getSatisfiedExplanation());
   }
 
   @Test
@@ -71,6 +77,10 @@ public class RuleAnalysisTest {
     makeAnalysisConsumeLog(analysis, shortLog);
 
     Assert.assertTrue(analysis.isSatisfied());
+    Assert.assertEquals("I went to aaa and, I dunno how\n"
+        + "Luckily I reached ccc just in time for\n"
+        + "the ccc-event which was there, wuff.",
+        analysis.getSatisfiedExplanation());
   }
 
   @Test
@@ -89,6 +99,9 @@ public class RuleAnalysisTest {
     makeAnalysisConsumeLog(analysis, shortLog);
 
     Assert.assertTrue(analysis.isSatisfied());
+    Assert.assertEquals("the overlay sometimes\n"
+        + "usually, except when the overlay",
+        analysis.getSatisfiedExplanation());
   }
 
   @Test
@@ -108,6 +121,10 @@ public class RuleAnalysisTest {
     makeAnalysisConsumeLog(analysis, shortLog);
 
     Assert.assertTrue(analysis.isSatisfied());
+    Assert.assertEquals("sometimes things work\n"
+        + "and sometimes they doesn't\n"
+        + "but sometimes, just sometimes..",
+        analysis.getSatisfiedExplanation());
   }
 
   @Test

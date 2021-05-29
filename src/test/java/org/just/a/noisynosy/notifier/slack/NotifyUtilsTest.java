@@ -2,8 +2,11 @@ package org.just.a.noisynosy.notifier.slack;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.just.a.noisynosy.analyzer.analysis.MatchAnalysis;
+import org.just.a.noisynosy.analyzer.analysis.RuleAnalysis;
 import org.just.a.noisynosy.notifier.NotifyUtils;
 import org.just.a.noisynosy.rules.Rule;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +25,21 @@ public class NotifyUtilsTest {
             givenPod(), givenRule(4), givenMappings());
 
     Assert.assertEquals("example template with bbb and test-pod-42", result);
+  }
+
+  @Test
+  public void should_build_template_fifth() {
+    final RuleAnalysis analysis = givenRule(1);
+    final MatchAnalysis match = Mockito.mock(MatchAnalysis.class);
+    analysis.getMatchAnalysis().add(match);
+    Mockito.when(match.getSatisfiedExplanation())
+        .thenReturn("abcd");
+    Mockito.when(match.isSatisfied()).thenReturn(true);
+    final String result =
+        NotifyUtils.buildTemplate("example template with {{satisfied-explanation}}",
+            givenPod(), analysis, givenMappings());
+
+    Assert.assertEquals("example template with abcd", result);
   }
 
   @Test
@@ -71,17 +89,17 @@ public class NotifyUtilsTest {
     return result;
   }
 
-  private Rule givenRule(int num) {
+  private RuleAnalysis givenRule(int num) {
     final Rule rule = new Rule();
     rule.setMatchesInAnd(new ArrayList<>());
     rule.setName("test-rule-" + num);
     rule.setDescription("test-description-" + num);
 
-    return rule;
+    return new RuleAnalysis(rule);
   }
 
-  private List<Rule> givenRules(int howMany) {
-    final List<Rule> result = new ArrayList<>();
+  private List<RuleAnalysis> givenRules(int howMany) {
+    final List<RuleAnalysis> result = new ArrayList<>();
 
     for (int i = 0; i < howMany; i++) {
       result.add(givenRule(i));

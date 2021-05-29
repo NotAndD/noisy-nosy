@@ -39,7 +39,7 @@ public class Selector {
     }
 
     final Map<String, String> labels = pod.getMetadata().getLabels();
-    return labelsMatch.entrySet().stream()
+    return labels != null && labelsMatch.entrySet().stream()
         .allMatch(e -> labels.containsKey(e.getKey())
             && e.getValue().equals(labels.get(e.getKey())));
   }

@@ -1,7 +1,8 @@
-package org.just.a.noisynosy.rules;
+package org.just.a.noisynosy.rules.log;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.just.a.noisynosy.rules.Selector;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
@@ -9,11 +10,11 @@ import java.util.List;
 
 import io.fabric8.kubernetes.api.model.Pod;
 
-public class RuleTest {
+public class LogRuleTest {
 
   @Test
   public void should_be_valid() {
-    final Rule rule = new Rule();
+    final LogRule rule = new LogRule();
 
     rule.setName("test");
     rule.setDescription("test description");
@@ -26,7 +27,7 @@ public class RuleTest {
 
   @Test
   public void should_be_valid_forth() {
-    final Rule rule = new Rule();
+    final LogRule rule = new LogRule();
 
     rule.setName("test");
     rule.setDescription("test description");
@@ -39,7 +40,7 @@ public class RuleTest {
 
   @Test
   public void should_be_valid_second() {
-    final Rule rule = new Rule();
+    final LogRule rule = new LogRule();
 
     rule.setName("test");
     rule.setDescription("test description");
@@ -52,7 +53,7 @@ public class RuleTest {
 
   @Test
   public void should_be_valid_third() {
-    final Rule rule = new Rule();
+    final LogRule rule = new LogRule();
 
     rule.setName("test");
     rule.setDescription("test description");
@@ -65,7 +66,7 @@ public class RuleTest {
 
   @Test
   public void should_not_be_valid() {
-    final Rule rule = new Rule();
+    final LogRule rule = new LogRule();
 
     rule.setDescription("test description");
     rule.setSelectorsInAnd(givenSelectors(
@@ -77,7 +78,7 @@ public class RuleTest {
 
   @Test
   public void should_not_be_valid_eight() {
-    final Rule rule = new Rule();
+    final LogRule rule = new LogRule();
 
     rule.setName("test");
     rule.setDescription("test description");
@@ -91,7 +92,7 @@ public class RuleTest {
 
   @Test
   public void should_not_be_valid_fifth() {
-    final Rule rule = new Rule();
+    final LogRule rule = new LogRule();
 
     rule.setName("test");
     rule.setDescription("test description");
@@ -103,7 +104,7 @@ public class RuleTest {
 
   @Test
   public void should_not_be_valid_for_matches() {
-    final Rule rule = new Rule();
+    final LogRule rule = new LogRule();
 
     rule.setName("test");
     rule.setDescription("test description");
@@ -116,7 +117,7 @@ public class RuleTest {
 
   @Test
   public void should_not_be_valid_for_selectors() {
-    final Rule rule = new Rule();
+    final LogRule rule = new LogRule();
 
     rule.setName("test");
     rule.setDescription("test description");
@@ -129,7 +130,7 @@ public class RuleTest {
 
   @Test
   public void should_not_be_valid_forth() {
-    final Rule rule = new Rule();
+    final LogRule rule = new LogRule();
 
     rule.setName("test");
     rule.setDescription("test description");
@@ -142,7 +143,7 @@ public class RuleTest {
 
   @Test
   public void should_not_be_valid_second() {
-    final Rule rule = new Rule();
+    final LogRule rule = new LogRule();
 
     rule.setName("test");
     rule.setSelectorsInOr(givenSelectors(
@@ -154,7 +155,7 @@ public class RuleTest {
 
   @Test
   public void should_not_be_valid_seventh() {
-    final Rule rule = new Rule();
+    final LogRule rule = new LogRule();
 
     rule.setName("test");
     rule.setDescription("test description");
@@ -169,7 +170,7 @@ public class RuleTest {
 
   @Test
   public void should_not_be_valid_sixth() {
-    final Rule rule = new Rule();
+    final LogRule rule = new LogRule();
 
     rule.setName("test");
     rule.setDescription("test description");
@@ -181,7 +182,7 @@ public class RuleTest {
 
   @Test
   public void should_not_be_valid_third() {
-    final Rule rule = new Rule();
+    final LogRule rule = new LogRule();
 
     rule.setName("test");
     rule.setDescription("test description");
@@ -195,7 +196,7 @@ public class RuleTest {
   public void should_not_select_pod() {
     final Pod pod = new Pod();
 
-    final Rule rule = new Rule();
+    final LogRule rule = new LogRule();
     rule.setSelectorsInAnd(givenSelectors(
         givenSelector(true, false)));
 
@@ -206,7 +207,7 @@ public class RuleTest {
   public void should_not_select_pod_second() {
     final Pod pod = new Pod();
 
-    final Rule rule = new Rule();
+    final LogRule rule = new LogRule();
     rule.setSelectorsInAnd(givenSelectors(
         givenSelector(true, true),
         givenSelector(true, false)));
@@ -218,7 +219,7 @@ public class RuleTest {
   public void should_not_select_pod_third() {
     final Pod pod = new Pod();
 
-    final Rule rule = new Rule();
+    final LogRule rule = new LogRule();
     rule.setSelectorsInOr(givenSelectors(
         givenSelector(true, false),
         givenSelector(true, false)));
@@ -230,7 +231,7 @@ public class RuleTest {
   public void should_select_pod() {
     final Pod pod = new Pod();
 
-    final Rule rule = new Rule();
+    final LogRule rule = new LogRule();
     rule.setSelectorsInOr(givenSelectors(
         givenSelector(true, true), givenSelector(true, true)));
 
@@ -241,7 +242,7 @@ public class RuleTest {
   public void should_select_pod_in_or() {
     final Pod pod = new Pod();
 
-    final Rule rule = new Rule();
+    final LogRule rule = new LogRule();
     rule.setSelectorsInOr(givenSelectors(
         givenSelector(true, true),
         givenSelector(true, false)));
@@ -253,24 +254,24 @@ public class RuleTest {
   public void should_select_pod_second() {
     final Pod pod = new Pod();
 
-    final Rule rule = new Rule();
+    final LogRule rule = new LogRule();
     rule.setSelectorsInAnd(givenSelectors(
         givenSelector(true, true)));
 
     Assert.assertTrue(rule.doesItSelect(pod));
   }
 
-  private Match givenMatch(boolean isValid) {
-    final Match match = Mockito.mock(Match.class);
+  private LogMatch givenMatch(boolean isValid) {
+    final LogMatch match = Mockito.mock(LogMatch.class);
     Mockito.when(match.isValid()).thenReturn(isValid);
 
     return match;
   }
 
-  private List<Match> givenMatches(Match... matches) {
-    final List<Match> result = new ArrayList<>();
+  private List<LogMatch> givenMatches(LogMatch... matches) {
+    final List<LogMatch> result = new ArrayList<>();
 
-    for (final Match match : matches) {
+    for (final LogMatch match : matches) {
       result.add(match);
     }
 

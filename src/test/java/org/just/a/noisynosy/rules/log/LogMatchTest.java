@@ -1,15 +1,16 @@
-package org.just.a.noisynosy.rules;
+package org.just.a.noisynosy.rules.log;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.just.a.noisynosy.rules.log.LogMatch;
 
 import java.util.ArrayList;
 
-public class MatchTest {
+public class LogMatchTest {
 
   @Test
   public void should_be_valid() {
-    final Match match = new Match();
+    final LogMatch match = new LogMatch();
 
     match.setHowMany(2);
     match.setValuesInAnd(new ArrayList<>());
@@ -20,7 +21,7 @@ public class MatchTest {
 
   @Test
   public void should_be_valid_second() {
-    final Match match = new Match();
+    final LogMatch match = new LogMatch();
 
     match.setHowMany(2);
     match.setHowMuch(200);
@@ -32,7 +33,7 @@ public class MatchTest {
 
   @Test
   public void should_not_be_valid() {
-    final Match match = new Match();
+    final LogMatch match = new LogMatch();
 
     match.setHowMuch(200);
     match.setValuesInOr(new ArrayList<>());
@@ -43,7 +44,7 @@ public class MatchTest {
 
   @Test
   public void should_not_be_valid_forth() {
-    final Match match = new Match();
+    final LogMatch match = new LogMatch();
 
     match.setHowMany(2);
     match.setHowMuch(200);
@@ -53,7 +54,7 @@ public class MatchTest {
 
   @Test
   public void should_not_be_valid_second() {
-    final Match match = new Match();
+    final LogMatch match = new LogMatch();
 
     match.setHowMany(2);
     match.setHowMuch(200);
@@ -64,7 +65,7 @@ public class MatchTest {
 
   @Test
   public void should_not_be_valid_third() {
-    final Match match = new Match();
+    final LogMatch match = new LogMatch();
 
     match.setHowMany(2);
     match.setHowMuch(200);

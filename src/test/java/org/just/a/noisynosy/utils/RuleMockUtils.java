@@ -1,16 +1,16 @@
 package org.just.a.noisynosy.utils;
 
-import org.just.a.noisynosy.rules.Match;
-import org.just.a.noisynosy.rules.Rule;
 import org.just.a.noisynosy.rules.Selector;
+import org.just.a.noisynosy.rules.log.LogMatch;
+import org.just.a.noisynosy.rules.log.LogRule;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
 
 public final class RuleMockUtils {
 
-  public static Match givenMatchInAnd(int howMany, String... values) {
-    final Match result = new Match();
+  public static LogMatch givenLogMatchInAnd(int howMany, String... values) {
+    final LogMatch result = new LogMatch();
     result.setHowMany(howMany);
     result.setHowMuch(60000);
     result.setValuesInAnd(new ArrayList<>());
@@ -21,8 +21,8 @@ public final class RuleMockUtils {
     return result;
   }
 
-  public static Match givenMatchInOr(int howMany, String... values) {
-    final Match result = new Match();
+  public static LogMatch givenLogMatchInOr(int howMany, String... values) {
+    final LogMatch result = new LogMatch();
     result.setHowMany(howMany);
     result.setHowMuch(60000);
     result.setValuesInOr(new ArrayList<>());
@@ -33,8 +33,8 @@ public final class RuleMockUtils {
     return result;
   }
 
-  public static Rule givenRuleInAnd(Match... matches) {
-    final Rule result = new Rule();
+  public static LogRule givenLogRuleInAnd(LogMatch... matches) {
+    final LogRule result = new LogRule();
     result.setName("test-rule");
     result.setDescription("test-description");
     result.setMatchesInAnd(new ArrayList<>());
@@ -43,20 +43,20 @@ public final class RuleMockUtils {
     Mockito.when(selector.isValid()).thenReturn(true);
     result.getSelectorsInAnd().add(selector);
 
-    for (final Match val : matches) {
+    for (final LogMatch val : matches) {
       result.getMatchesInAnd().add(val);
     }
 
     return result;
   }
 
-  public static Rule givenRuleInAnd(Selector... selectors) {
-    final Rule result = new Rule();
+  public static LogRule givenLogRuleInAnd(Selector... selectors) {
+    final LogRule result = new LogRule();
     result.setName("test-rule");
     result.setDescription("test-description");
     result.setSelectorsInAnd(new ArrayList<>());
     result.setMatchesInAnd(new ArrayList<>());
-    final Match match = Mockito.mock(Match.class);
+    final LogMatch match = Mockito.mock(LogMatch.class);
     Mockito.when(match.isValid()).thenReturn(true);
     result.getMatchesInAnd().add(match);
 
@@ -67,8 +67,8 @@ public final class RuleMockUtils {
     return result;
   }
 
-  public static Rule givenRuleInOr(Match... matches) {
-    final Rule result = new Rule();
+  public static LogRule givenLogRuleInOr(LogMatch... matches) {
+    final LogRule result = new LogRule();
     result.setName("test-rule");
     result.setDescription("test-description");
     result.setMatchesInOr(new ArrayList<>());
@@ -77,20 +77,20 @@ public final class RuleMockUtils {
     Mockito.when(selector.isValid()).thenReturn(true);
     result.getSelectorsInAnd().add(selector);
 
-    for (final Match val : matches) {
+    for (final LogMatch val : matches) {
       result.getMatchesInOr().add(val);
     }
 
     return result;
   }
 
-  public static Rule givenRuleInOr(Selector... selectors) {
-    final Rule result = new Rule();
+  public static LogRule givenLogRuleInOr(Selector... selectors) {
+    final LogRule result = new LogRule();
     result.setName("test-rule");
     result.setDescription("test-description");
     result.setSelectorsInOr(new ArrayList<>());
     result.setMatchesInAnd(new ArrayList<>());
-    final Match match = Mockito.mock(Match.class);
+    final LogMatch match = Mockito.mock(LogMatch.class);
     Mockito.when(match.isValid()).thenReturn(true);
     result.getMatchesInAnd().add(match);
 

@@ -12,6 +12,10 @@ public final class KubeUtils {
     return namespace + "_" + name;
   }
 
+  public static String getPodUid(Pod pod) {
+    return pod.getMetadata().getUid();
+  }
+
   private KubeUtils() {
     super();
   }

@@ -48,10 +48,13 @@ public class KubeWatcherTest {
   @Test
   public void should_close_analyzer() throws IOException {
     Mockito.when(client.getPods()).thenReturn(givenTestPods());
-    final Map<String, PodAnalyzer> watches = new HashMap<>();
+    final Map<String, List<PodAnalyzer>> watches = new HashMap<>();
     final PodAnalyzer analyzer = Mockito.mock(PodAnalyzer.class);
-    watches.put("zzz_zzz-pod-42", analyzer);
+    watches.put("zzz_zzz-pod-42", getAnalyzersFor(analyzer));
     ReflectionTestUtils.setField(watcher, "watches", watches);
+    final Map<String, Pod> podsBeingWatched = new HashMap<>();
+    podsBeingWatched.put("zzz_zzz-pod-42", givenPod("zzz", "zzz-pod-42"));
+    ReflectionTestUtils.setField(watcher, "podsBeingWatched", podsBeingWatched);
 
     watcher.setup();
 
@@ -63,10 +66,13 @@ public class KubeWatcherTest {
     Mockito.when(client.getPods()).thenReturn(givenTestPods());
     watcher.setup();
 
-    final Map<String, PodAnalyzer> watches = new HashMap<>();
+    final Map<String, List<PodAnalyzer>> watches = new HashMap<>();
     final PodAnalyzer analyzer = Mockito.mock(PodAnalyzer.class);
-    watches.put("zzz_zzz-pod-42", analyzer);
+    watches.put("zzz_zzz-pod-42", getAnalyzersFor(analyzer));
     ReflectionTestUtils.setField(watcher, "watches", watches);
+    final Map<String, Pod> podsBeingWatched = new HashMap<>();
+    podsBeingWatched.put("zzz_zzz-pod-42", givenPod("zzz", "zzz-pod-42"));
+    ReflectionTestUtils.setField(watcher, "podsBeingWatched", podsBeingWatched);
 
     watcher.updateWatches();
 
@@ -75,10 +81,13 @@ public class KubeWatcherTest {
 
   @Test
   public void should_close_the_analyzer() throws IOException {
-    final Map<String, PodAnalyzer> watches = new HashMap<>();
+    final Map<String, List<PodAnalyzer>> watches = new HashMap<>();
     final PodAnalyzer analyzer = Mockito.mock(PodAnalyzer.class);
-    watches.put("zzz_zzz-pod-42", analyzer);
+    watches.put("zzz_zzz-pod-42", getAnalyzersFor(analyzer));
     ReflectionTestUtils.setField(watcher, "watches", watches);
+    final Map<String, Pod> podsBeingWatched = new HashMap<>();
+    podsBeingWatched.put("zzz_zzz-pod-42", givenPod("zzz", "zzz-pod-42"));
+    ReflectionTestUtils.setField(watcher, "podsBeingWatched", podsBeingWatched);
 
     watcher.close();
 
@@ -95,11 +104,14 @@ public class KubeWatcherTest {
 
   @Test
   public void should_do_nothing_on_no_results_when_checking() {
-    final Map<String, PodAnalyzer> watches = new HashMap<>();
+    final Map<String, List<PodAnalyzer>> watches = new HashMap<>();
     final PodAnalyzer analyzer = Mockito.mock(PodAnalyzer.class);
-    watches.put("zzz_zzz-pod-42", analyzer);
+    watches.put("zzz_zzz-pod-42", getAnalyzersFor(analyzer));
     ReflectionTestUtils.setField(watcher, "watches", watches);
     Mockito.when(analyzer.checkResults()).thenReturn(new ArrayList<>());
+    final Map<String, Pod> podsBeingWatched = new HashMap<>();
+    podsBeingWatched.put("zzz_zzz-pod-42", givenPod("zzz", "zzz-pod-42"));
+    ReflectionTestUtils.setField(watcher, "podsBeingWatched", podsBeingWatched);
 
     watcher.peekALook();
 
@@ -111,14 +123,17 @@ public class KubeWatcherTest {
 
   @Test
   public void should_handle_and_notify_when_checking_with_results() {
-    final Map<String, PodAnalyzer> watches = new HashMap<>();
+    final Map<String, List<PodAnalyzer>> watches = new HashMap<>();
     final PodAnalyzer analyzer = Mockito.mock(PodAnalyzer.class);
-    watches.put("zzz_zzz-pod-42", analyzer);
+    watches.put("zzz_zzz-pod-42", getAnalyzersFor(analyzer));
     ReflectionTestUtils.setField(watcher, "watches", watches);
     final RuleAnalysis analysis = Mockito.mock(RuleAnalysis.class);
     final List<RuleAnalysis> analyzerResult = new ArrayList<>();
     analyzerResult.add(analysis);
     Mockito.when(analyzer.checkResults()).thenReturn(analyzerResult);
+    final Map<String, Pod> podsBeingWatched = new HashMap<>();
+    podsBeingWatched.put("zzz_zzz-pod-42", givenPod("zzz", "zzz-pod-42"));
+    ReflectionTestUtils.setField(watcher, "podsBeingWatched", podsBeingWatched);
 
     watcher.peekALook();
 
@@ -129,10 +144,13 @@ public class KubeWatcherTest {
 
   @Test
   public void should_not_reset_analysis() {
-    final Map<String, PodAnalyzer> watches = new HashMap<>();
+    final Map<String, List<PodAnalyzer>> watches = new HashMap<>();
     final PodAnalyzer analyzer = Mockito.mock(PodAnalyzer.class);
-    watches.put("zzz_zzz-pod-42", analyzer);
+    watches.put("zzz_zzz-pod-42", getAnalyzersFor(analyzer));
     ReflectionTestUtils.setField(watcher, "watches", watches);
+    final Map<String, Pod> podsBeingWatched = new HashMap<>();
+    podsBeingWatched.put("zzz_zzz-pod-42", givenPod("zzz", "zzz-pod-42"));
+    ReflectionTestUtils.setField(watcher, "podsBeingWatched", podsBeingWatched);
 
     watcher.resetAnalysis("test", "zzz-pod-42", "special-rule");
 
@@ -162,10 +180,13 @@ public class KubeWatcherTest {
 
   @Test
   public void should_reset_analysis() {
-    final Map<String, PodAnalyzer> watches = new HashMap<>();
+    final Map<String, List<PodAnalyzer>> watches = new HashMap<>();
     final PodAnalyzer analyzer = Mockito.mock(PodAnalyzer.class);
-    watches.put("zzz_zzz-pod-42", analyzer);
+    watches.put("zzz_zzz-pod-42", getAnalyzersFor(analyzer));
     ReflectionTestUtils.setField(watcher, "watches", watches);
+    final Map<String, Pod> podsBeingWatched = new HashMap<>();
+    podsBeingWatched.put("zzz_zzz-pod-42", givenPod("zzz", "zzz-pod-42"));
+    ReflectionTestUtils.setField(watcher, "podsBeingWatched", podsBeingWatched);
 
     watcher.resetAnalysis("zzz", "zzz-pod-42", "special-rule");
 
@@ -221,6 +242,15 @@ public class KubeWatcherTest {
         Mockito.eq("bbb-pod-222"), Mockito.any());
   }
 
+  private List<PodAnalyzer> getAnalyzersFor(PodAnalyzer... analyzers) {
+    final List<PodAnalyzer> result = new ArrayList<>();
+    for (final PodAnalyzer analyzer : analyzers) {
+      result.add(analyzer);
+    }
+
+    return result;
+  }
+
   private List<Pod> givenOtherTestPods() {
     final List<Pod> result = new ArrayList<>();
     result.add(givenPod("test", "test-pod-42"));
@@ -237,6 +267,7 @@ public class KubeWatcherTest {
     pod.setMetadata(new ObjectMeta());
     pod.getMetadata().setName(name);
     pod.getMetadata().setNamespace(namespace);
+    pod.getMetadata().setUid(namespace + name);
 
     return pod;
   }
@@ -245,11 +276,11 @@ public class KubeWatcherTest {
     final WatchFor result = new WatchFor();
     result.setLogRules(new ArrayList<>());
 
-    result.getLogRules().add(RuleMockUtils.givenRuleInAnd(
+    result.getLogRules().add(RuleMockUtils.givenLogRuleInAnd(
         RuleMockUtils.givenSelectorNamespaces("test")));
-    result.getLogRules().add(RuleMockUtils.givenRuleInAnd(
+    result.getLogRules().add(RuleMockUtils.givenLogRuleInAnd(
         RuleMockUtils.givenSelectorNamespaces("aaa")));
-    result.getLogRules().add(RuleMockUtils.givenRuleInAnd(
+    result.getLogRules().add(RuleMockUtils.givenLogRuleInAnd(
         RuleMockUtils.givenSelectorNamespaces("bbb")));
 
     return result;

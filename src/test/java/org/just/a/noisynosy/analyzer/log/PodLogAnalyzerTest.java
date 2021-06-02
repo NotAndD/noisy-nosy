@@ -1,14 +1,14 @@
-package org.just.a.noisynosy.analyzer;
-
-import org.just.a.noisynosy.analyzer.analysis.RuleAnalysis;
-import org.just.a.noisynosy.k8s.KubeClient;
-import org.just.a.noisynosy.rules.Rule;
-import org.just.a.noisynosy.utils.RuleMockUtils;
+package org.just.a.noisynosy.analyzer.log;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.just.a.noisynosy.analyzer.analysis.RuleAnalysis;
+import org.just.a.noisynosy.k8s.KubeClient;
+import org.just.a.noisynosy.rules.Rule;
+import org.just.a.noisynosy.utils.RuleMockUtils;
 import org.mockito.Mockito;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -17,13 +17,13 @@ import java.util.List;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
 
-public class PodAnalyzerTest {
+public class PodLogAnalyzerTest {
 
   private KubeClient client;
 
   private Pod pod;
 
-  private PodAnalyzer analyzer;
+  private PodLogAnalyzer analyzer;
 
   @Before
   public void setup() {
@@ -38,8 +38,8 @@ public class PodAnalyzerTest {
   @Test
   public void should_find_some_results() throws Exception {
     final List<Rule> rules = new ArrayList<>();
-    rules.add(RuleMockUtils.givenRuleInAnd(
-        RuleMockUtils.givenMatchInAnd(3, "sometimes")));
+    rules.add(RuleMockUtils.givenLogRuleInAnd(
+        RuleMockUtils.givenLogMatchInAnd(3, "sometimes")));
     final String shortLog = "Welcome!\n"
         + "sometimes things work\n"
         + "and sometimes they doesn't\n"
@@ -48,10 +48,10 @@ public class PodAnalyzerTest {
         + "but sometimes, just sometimes..\n"
         + "things are perfect.";
 
-    analyzer = new PodAnalyzer(client, pod, rules);
+    analyzer = new PodLogAnalyzer(client, pod, rules);
     analyzer.beginAnalysis();
-
-    final ByteArrayOutputStream logStream = analyzer.getLogStream();
+    final ByteArrayOutputStream logStream =
+        (ByteArrayOutputStream) ReflectionTestUtils.getField(analyzer, "logStream");
 
     logStream.write(shortLog.getBytes());
 
@@ -63,8 +63,8 @@ public class PodAnalyzerTest {
   @Test
   public void should_find_some_results_at_second_check() throws Exception {
     final List<Rule> rules = new ArrayList<>();
-    rules.add(RuleMockUtils.givenRuleInAnd(
-        RuleMockUtils.givenMatchInAnd(1, "Exception", "caused by")));
+    rules.add(RuleMockUtils.givenLogRuleInAnd(
+        RuleMockUtils.givenLogMatchInAnd(1, "Exception", "caused by")));
     final String firstPiece = "Welcome!\n"
         + "sometimes things work\n"
         + "and sometimes they doesn't\n";
@@ -76,10 +76,11 @@ public class PodAnalyzerTest {
         + "but sometimes, just sometimes..\n"
         + "things are perfect.";
 
-    analyzer = new PodAnalyzer(client, pod, rules);
+    analyzer = new PodLogAnalyzer(client, pod, rules);
     analyzer.beginAnalysis();
 
-    final ByteArrayOutputStream logStream = analyzer.getLogStream();
+    final ByteArrayOutputStream logStream =
+        (ByteArrayOutputStream) ReflectionTestUtils.getField(analyzer, "logStream");
 
     logStream.write(firstPiece.getBytes());
     final List<RuleAnalysis> firstResults = analyzer.checkResults();
@@ -94,16 +95,17 @@ public class PodAnalyzerTest {
   @Test
   public void should_not_read_logs_more_than_one_time() throws Exception {
     final List<Rule> rules = new ArrayList<>();
-    rules.add(RuleMockUtils.givenRuleInAnd(
-        RuleMockUtils.givenMatchInAnd(3, "sometimes")));
+    rules.add(RuleMockUtils.givenLogRuleInAnd(
+        RuleMockUtils.givenLogMatchInAnd(3, "sometimes")));
     final String firstPiece = "Welcome!\n"
         + "sometimes things work\n"
         + "and sometimes they doesn't\n";
 
-    analyzer = new PodAnalyzer(client, pod, rules);
+    analyzer = new PodLogAnalyzer(client, pod, rules);
     analyzer.beginAnalysis();
 
-    final ByteArrayOutputStream logStream = analyzer.getLogStream();
+    final ByteArrayOutputStream logStream =
+        (ByteArrayOutputStream) ReflectionTestUtils.getField(analyzer, "logStream");
 
     logStream.write(firstPiece.getBytes());
     final List<RuleAnalysis> firstResults = analyzer.checkResults();
@@ -116,10 +118,10 @@ public class PodAnalyzerTest {
   @Test
   public void should_start_analysis() {
     final List<Rule> rules = new ArrayList<>();
-    rules.add(RuleMockUtils.givenRuleInAnd(
-        RuleMockUtils.givenMatchInAnd(3, "sometimes")));
+    rules.add(RuleMockUtils.givenLogRuleInAnd(
+        RuleMockUtils.givenLogMatchInAnd(3, "sometimes")));
 
-    analyzer = new PodAnalyzer(client, pod, rules);
+    analyzer = new PodLogAnalyzer(client, pod, rules);
     analyzer.beginAnalysis();
 
     Mockito.verify(client, Mockito.times(1))

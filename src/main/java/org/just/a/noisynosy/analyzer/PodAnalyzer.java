@@ -4,30 +4,23 @@ import org.just.a.noisynosy.analyzer.analysis.RuleAnalysis;
 import org.just.a.noisynosy.k8s.KubeClient;
 import org.just.a.noisynosy.rules.Rule;
 
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.client.dsl.LogWatch;
 import lombok.Data;
 
 @Data
-public class PodAnalyzer implements Closeable {
+public abstract class PodAnalyzer implements Closeable {
 
   private static final Logger LOGGER = Logger.getLogger(PodAnalyzer.class.getName());
 
   private final KubeClient client;
   private final Pod pod;
   private final List<RuleAnalysis> analysis;
-  private ByteArrayOutputStream logStream;
-  private LogWatch watch;
 
   public PodAnalyzer(KubeClient client, Pod pod, List<Rule> rules) {
     this.pod = pod;
@@ -40,46 +33,22 @@ public class PodAnalyzer implements Closeable {
     LOGGER.log(Level.INFO, () -> String.format("Beginning analysis for pod %s/%s",
         pod.getMetadata().getNamespace(), pod.getMetadata().getName()));
 
-    setup();
-
-    watch = client.watchPodLogs(pod.getMetadata().getNamespace(),
-        pod.getMetadata().getName(), logStream);
+    setupAnalysis();
   }
 
   public List<RuleAnalysis> checkResults() {
-    final List<RuleAnalysis> result = new ArrayList<>();
+    progressAnalysis();
 
-    final String logs = logStream.toString();
-    logStream.reset();
+    final List<RuleAnalysis> result = analysis.stream()
+        .filter(RuleAnalysis::isSatisfied)
+        .collect(Collectors.toList());
 
-    try (Scanner scanner = new Scanner(logs)) {
-      while (scanner.hasNextLine()) {
-        final String line = scanner.nextLine();
-        final List<RuleAnalysis> newlySatisfiedRules = analysis.stream()
-            .filter(a -> !a.wasSatisfied())
-            .filter(a -> a.isSatisfiedWith(line))
-            .collect(Collectors.toList());
-
-        if (!newlySatisfiedRules.isEmpty()) {
-          LOGGER.log(Level.INFO, () -> String.format("Rule satisfied for pod %s/%s",
-              pod.getMetadata().getNamespace(), pod.getMetadata().getName()));
-          result.addAll(newlySatisfiedRules);
-        }
-      }
+    if (!result.isEmpty()) {
+      LOGGER.log(Level.INFO, () -> String.format("Rule / Rules satisfied for pod %s/%s",
+          getPodNamespace(), getPodName()));
     }
 
     return result;
-  }
-
-  @Override
-  public void close() throws IOException {
-    if (watch != null) {
-      watch.close();
-    }
-
-    if (logStream != null) {
-      logStream.close();
-    }
   }
 
   public void resetAnalysis(String ruleName) {
@@ -90,10 +59,16 @@ public class PodAnalyzer implements Closeable {
     });
   }
 
-  private void setup() {
-    if (logStream == null) {
-      logStream = new ByteArrayOutputStream();
-    }
+  protected String getPodName() {
+    return pod.getMetadata().getName();
   }
+
+  protected String getPodNamespace() {
+    return pod.getMetadata().getNamespace();
+  }
+
+  protected abstract void progressAnalysis();
+
+  protected abstract void setupAnalysis();
 
 }

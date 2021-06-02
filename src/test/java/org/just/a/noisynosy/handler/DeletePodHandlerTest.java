@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.just.a.noisynosy.analyzer.analysis.RuleAnalysis;
 import org.just.a.noisynosy.k8s.KubeService;
-import org.just.a.noisynosy.rules.Rule;
+import org.just.a.noisynosy.rules.log.LogRule;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -53,7 +53,7 @@ public class DeletePodHandlerTest {
   }
 
   private RuleAnalysis givenRuleAnalysis(int num) {
-    final Rule rule = new Rule();
+    final LogRule rule = new LogRule();
     rule.setName("test-rule-" + num);
     rule.setMatchesInAnd(new ArrayList<>());
     final RuleAnalysis result = new RuleAnalysis(rule);

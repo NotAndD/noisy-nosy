@@ -1,5 +1,6 @@
 package org.just.a.noisynosy.analyzer.analysis;
 
+import org.just.a.noisynosy.rules.Match;
 import org.just.a.noisynosy.rules.Rule;
 
 import java.util.ArrayList;
@@ -20,13 +21,8 @@ public class RuleAnalysis {
     this.rule = rule;
     matchAnalysis = new ArrayList<>();
 
-    if (rule.getMatchesInAnd() != null) {
-      matchAnalysis = rule.getMatchesInAnd().stream().map(MatchAnalysis::new)
-          .collect(Collectors.toList());
-    } else {
-      matchAnalysis = rule.getMatchesInOr().stream().map(MatchAnalysis::new)
-          .collect(Collectors.toList());
-    }
+    matchAnalysis = rule.getMatches().stream().map(Match::startAnalysis)
+        .collect(Collectors.toList());
   }
 
   public String getSatisfiedExplanation() {
@@ -41,7 +37,7 @@ public class RuleAnalysis {
       return true;
     }
 
-    if (rule.getMatchesInAnd() != null) {
+    if (rule.areMatchesInAnd()) {
       isSatisfied = matchAnalysis.stream().allMatch(MatchAnalysis::isSatisfied);
     } else {
       isSatisfied = matchAnalysis.stream().anyMatch(MatchAnalysis::isSatisfied);
@@ -49,8 +45,8 @@ public class RuleAnalysis {
     return isSatisfied;
   }
 
-  public boolean isSatisfiedWith(String line) {
-    matchAnalysis.forEach(a -> a.isSatisfiedWith(line));
+  public boolean isSatisfiedWith(Object obj) {
+    matchAnalysis.forEach(a -> a.isSatisfiedWith(obj));
 
     return isSatisfied();
   }

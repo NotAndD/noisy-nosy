@@ -8,7 +8,7 @@ import io.fabric8.kubernetes.api.model.Pod;
 import lombok.Data;
 
 @Data
-public class Rule {
+public abstract class Rule {
 
   private static final Logger LOGGER = Logger.getLogger(Rule.class.getName());
 
@@ -18,12 +18,13 @@ public class Rule {
   private List<Selector> selectorsInAnd;
   private List<Selector> selectorsInOr;
 
-  private List<Match> matchesInAnd;
-  private List<Match> matchesInOr;
+  public abstract boolean areMatchesInAnd();
 
   public boolean doesItSelect(Pod pod) {
     return doSelectorsInAndMatches(pod) && doSelectorsInOrMatches(pod);
   }
+
+  public abstract List<Match> getMatches();
 
   public boolean isValid() {
     LOGGER.log(Level.INFO,
@@ -36,21 +37,9 @@ public class Rule {
     return areSelectorsValid() && areMatchesValid();
   }
 
-  private boolean areMatchesValid() {
-    if (matchesInAnd != null && matchesInOr != null) {
-      LOGGER.log(Level.WARNING, "Rules cannot have matches both in AND and OR, discarded.");
-      return false;
-    }
-    if (matchesInAnd == null && matchesInOr == null
-        || matchesInAnd != null && matchesInAnd.isEmpty()
-        || matchesInOr != null && matchesInOr.isEmpty()) {
-      LOGGER.log(Level.WARNING, "Rules without matches are not allowed, discarded.");
-      return false;
-    }
+  public abstract RuleType ruleType();
 
-    return (matchesInAnd == null || matchesInAnd.stream().allMatch(Match::isValid))
-        && (matchesInOr == null || matchesInOr.stream().allMatch(Match::isValid));
-  }
+  protected abstract boolean areMatchesValid();
 
   private boolean areSelectorsValid() {
     if (selectorsInAnd != null && selectorsInOr != null) {

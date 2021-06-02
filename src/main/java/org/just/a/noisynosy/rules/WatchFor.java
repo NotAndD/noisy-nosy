@@ -1,5 +1,6 @@
 package org.just.a.noisynosy.rules;
 
+import org.just.a.noisynosy.rules.log.LogRule;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,7 +18,7 @@ public class WatchFor {
 
   private static final Logger LOGGER = Logger.getLogger(WatchFor.class.getName());
 
-  private List<Rule> logRules;
+  private List<LogRule> logRules;
 
   private boolean validityChecked = false;
 

@@ -25,8 +25,8 @@ public class RuleAnalysisTest {
         + "to let the rule you are testing\n"
         + "match correctly!";
 
-    final Rule rule = RuleMockUtils.givenRuleInAnd(
-        RuleMockUtils.givenMatchInAnd(2, "match"));
+    final Rule rule = RuleMockUtils.givenLogRuleInAnd(
+        RuleMockUtils.givenLogMatchInAnd(2, "match"));
     final RuleAnalysis analysis = new RuleAnalysis(rule);
     makeAnalysisConsumeLog(analysis, firstPart);
 
@@ -49,8 +49,8 @@ public class RuleAnalysisTest {
         + "Luckily I reached aaa just in time for\n"
         + "the aaa-event which was there, wuff.";
 
-    final Rule rule = RuleMockUtils.givenRuleInAnd(
-        RuleMockUtils.givenMatchInOr(3, "aaa", "ccc"));
+    final Rule rule = RuleMockUtils.givenLogRuleInAnd(
+        RuleMockUtils.givenLogMatchInOr(3, "aaa", "ccc"));
     final RuleAnalysis analysis = new RuleAnalysis(rule);
     makeAnalysisConsumeLog(analysis, shortLog);
 
@@ -71,8 +71,8 @@ public class RuleAnalysisTest {
         + "Luckily I reached ccc just in time for\n"
         + "the ccc-event which was there, wuff.";
 
-    final Rule rule = RuleMockUtils.givenRuleInAnd(
-        RuleMockUtils.givenMatchInOr(2, "aaa", "ccc"));
+    final Rule rule = RuleMockUtils.givenLogRuleInAnd(
+        RuleMockUtils.givenLogMatchInOr(2, "aaa", "ccc"));
     final RuleAnalysis analysis = new RuleAnalysis(rule);
     makeAnalysisConsumeLog(analysis, shortLog);
 
@@ -92,9 +92,9 @@ public class RuleAnalysisTest {
         + "usually, except when the overlay\n"
         + "is activated.";
 
-    final Rule rule = RuleMockUtils.givenRuleInOr(
-        RuleMockUtils.givenMatchInAnd(3, "sometimes"),
-        RuleMockUtils.givenMatchInAnd(2, "overlay"));
+    final Rule rule = RuleMockUtils.givenLogRuleInOr(
+        RuleMockUtils.givenLogMatchInAnd(3, "sometimes"),
+        RuleMockUtils.givenLogMatchInAnd(2, "overlay"));
     final RuleAnalysis analysis = new RuleAnalysis(rule);
     makeAnalysisConsumeLog(analysis, shortLog);
 
@@ -114,8 +114,8 @@ public class RuleAnalysisTest {
         + "but sometimes, just sometimes..\n"
         + "things are perfect.";
 
-    final Rule rule = RuleMockUtils.givenRuleInAnd(
-        RuleMockUtils.givenMatchInAnd(3, "sometimes"));
+    final Rule rule = RuleMockUtils.givenLogRuleInAnd(
+        RuleMockUtils.givenLogMatchInAnd(3, "sometimes"));
     final RuleAnalysis analysis = new RuleAnalysis(rule);
 
     makeAnalysisConsumeLog(analysis, shortLog);
@@ -140,8 +140,8 @@ public class RuleAnalysisTest {
         + "but sometimes, just sometimes..\n"
         + "things are perfect.";
 
-    final Rule rule = RuleMockUtils.givenRuleInAnd(
-        RuleMockUtils.givenMatchInAnd(1, "Exception", "caused by"));
+    final Rule rule = RuleMockUtils.givenLogRuleInAnd(
+        RuleMockUtils.givenLogMatchInAnd(1, "Exception", "caused by"));
     final RuleAnalysis analysis = new RuleAnalysis(rule);
 
     makeAnalysisConsumeLog(analysis, shortLog);
@@ -159,9 +159,9 @@ public class RuleAnalysisTest {
         + "I'd see bar..\n"
         + "whoops";
 
-    final Rule rule = RuleMockUtils.givenRuleInAnd(
-        RuleMockUtils.givenMatchInAnd(1, "foo"),
-        RuleMockUtils.givenMatchInAnd(1, "bar"));
+    final Rule rule = RuleMockUtils.givenLogRuleInAnd(
+        RuleMockUtils.givenLogMatchInAnd(1, "foo"),
+        RuleMockUtils.givenLogMatchInAnd(1, "bar"));
     final RuleAnalysis analysis = new RuleAnalysis(rule);
 
     makeAnalysisConsumeLog(analysis, shortLog);
@@ -181,8 +181,8 @@ public class RuleAnalysisTest {
         + "to let the rule you are testing\n"
         + "match correctly!";
 
-    final Rule rule = RuleMockUtils.givenRuleInAnd(
-        RuleMockUtils.givenMatchInAnd(2, "match"));
+    final Rule rule = RuleMockUtils.givenLogRuleInAnd(
+        RuleMockUtils.givenLogMatchInAnd(2, "match"));
     final RuleAnalysis analysis = new RuleAnalysis(rule);
     makeAnalysisConsumeLog(analysis, firstPart);
 
@@ -203,8 +203,8 @@ public class RuleAnalysisTest {
         + "Luckily I reached ccc just in time for\n"
         + "the ccc-event which was there, wuff.";
 
-    final Rule rule = RuleMockUtils.givenRuleInAnd(
-        RuleMockUtils.givenMatchInOr(4, "aaa", "ccc"));
+    final Rule rule = RuleMockUtils.givenLogRuleInAnd(
+        RuleMockUtils.givenLogMatchInOr(4, "aaa", "ccc"));
     final RuleAnalysis analysis = new RuleAnalysis(rule);
     makeAnalysisConsumeLog(analysis, shortLog);
 
@@ -220,9 +220,9 @@ public class RuleAnalysisTest {
         + "usually, except when the overlay\n"
         + "is activated.";
 
-    final Rule rule = RuleMockUtils.givenRuleInAnd(
-        RuleMockUtils.givenMatchInAnd(3, "sometimes"),
-        RuleMockUtils.givenMatchInAnd(2, "overlay"));
+    final Rule rule = RuleMockUtils.givenLogRuleInAnd(
+        RuleMockUtils.givenLogMatchInAnd(3, "sometimes"),
+        RuleMockUtils.givenLogMatchInAnd(2, "overlay"));
     final RuleAnalysis analysis = new RuleAnalysis(rule);
     makeAnalysisConsumeLog(analysis, shortLog);
 
@@ -239,8 +239,8 @@ public class RuleAnalysisTest {
         + "but sometimes, just sometimes..\n"
         + "things are perfect.";
 
-    final Rule rule = RuleMockUtils.givenRuleInAnd(
-        RuleMockUtils.givenMatchInAnd(3, "sometimes"));
+    final Rule rule = RuleMockUtils.givenLogRuleInAnd(
+        RuleMockUtils.givenLogMatchInAnd(3, "sometimes"));
     final RuleAnalysis analysis = new RuleAnalysis(rule);
 
     makeAnalysisConsumeLog(analysis, shortLog);
@@ -258,8 +258,8 @@ public class RuleAnalysisTest {
         + "Luckily I reached aaa just in time for\n"
         + "the aaa-event which was there, wuff.";
 
-    final Rule rule = RuleMockUtils.givenRuleInAnd(
-        RuleMockUtils.givenMatchInOr(3, "aaa", "ccc"));
+    final Rule rule = RuleMockUtils.givenLogRuleInAnd(
+        RuleMockUtils.givenLogMatchInOr(3, "aaa", "ccc"));
     final RuleAnalysis analysis = new RuleAnalysis(rule);
     makeAnalysisConsumeLog(analysis, shortLog);
 
@@ -275,8 +275,8 @@ public class RuleAnalysisTest {
     final String longLog = new BufferedReader(new InputStreamReader(stream))
         .lines().collect(Collectors.joining("\n"));
 
-    final Rule rule = RuleMockUtils.givenRuleInAnd(
-        RuleMockUtils.givenMatchInAnd(3, "Something"));
+    final Rule rule = RuleMockUtils.givenLogRuleInAnd(
+        RuleMockUtils.givenLogMatchInAnd(3, "Something"));
     final RuleAnalysis analysis = new RuleAnalysis(rule);
 
     makeAnalysisConsumeLog(analysis, longLog);
@@ -291,9 +291,9 @@ public class RuleAnalysisTest {
     final String longLog = new BufferedReader(new InputStreamReader(stream))
         .lines().collect(Collectors.joining("\n"));
 
-    final Rule rule = RuleMockUtils.givenRuleInAnd(
-        RuleMockUtils.givenMatchInAnd(1, "caused by", "Exception"),
-        RuleMockUtils.givenMatchInAnd(5, "Something"));
+    final Rule rule = RuleMockUtils.givenLogRuleInAnd(
+        RuleMockUtils.givenLogMatchInAnd(1, "caused by", "Exception"),
+        RuleMockUtils.givenLogMatchInAnd(5, "Something"));
     final RuleAnalysis analysis = new RuleAnalysis(rule);
 
     makeAnalysisConsumeLog(analysis, longLog);

@@ -2,6 +2,7 @@ package org.just.a.noisynosy.rules;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.just.a.noisynosy.rules.log.LogRule;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
@@ -14,9 +15,9 @@ public class WatchForTest {
     final WatchFor watchFor = new WatchFor();
     watchFor.setLogRules(new ArrayList<>());
 
-    final Rule first = Mockito.mock(Rule.class);
-    final Rule second = Mockito.mock(Rule.class);
-    final Rule third = Mockito.mock(Rule.class);
+    final LogRule first = Mockito.mock(LogRule.class);
+    final LogRule second = Mockito.mock(LogRule.class);
+    final LogRule third = Mockito.mock(LogRule.class);
 
     Mockito.when(first.isValid()).thenReturn(true);
     Mockito.when(second.isValid()).thenReturn(false);
@@ -27,7 +28,7 @@ public class WatchForTest {
 
     watchFor.checkValidity();
 
-    final List<Rule> filteredRules = watchFor.getLogRules();
+    final List<LogRule> filteredRules = watchFor.getLogRules();
     Assert.assertTrue(filteredRules != null && filteredRules.size() == 2);
     Assert.assertTrue(filteredRules.contains(first));
     Assert.assertFalse(filteredRules.contains(second));

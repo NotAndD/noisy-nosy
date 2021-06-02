@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.just.a.noisynosy.analyzer.analysis.MatchAnalysis;
 import org.just.a.noisynosy.analyzer.analysis.RuleAnalysis;
 import org.just.a.noisynosy.notifier.NotifyUtils;
-import org.just.a.noisynosy.rules.Rule;
+import org.just.a.noisynosy.rules.log.LogRule;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
@@ -90,7 +90,7 @@ public class NotifyUtilsTest {
   }
 
   private RuleAnalysis givenRule(int num) {
-    final Rule rule = new Rule();
+    final LogRule rule = new LogRule();
     rule.setMatchesInAnd(new ArrayList<>());
     rule.setName("test-rule-" + num);
     rule.setDescription("test-description-" + num);

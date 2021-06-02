@@ -6,6 +6,7 @@ import org.just.a.noisynosy.handler.Handler;
 import org.just.a.noisynosy.notifier.Notifier;
 import org.just.a.noisynosy.rules.Rule;
 import org.just.a.noisynosy.rules.WatchFor;
+import org.just.a.noisynosy.utils.AnalyzerUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +35,8 @@ public class KubeWatcher implements Closeable {
   private final WatchFor config;
   private final KubeClient client;
 
-  private final Map<String, PodAnalyzer> watches;
+  private final Map<String, List<PodAnalyzer>> watches;
+  private final Map<String, Pod> podsBeingWatched;
 
   private final List<Handler> handlers;
   private final List<Notifier> notifiers;
@@ -47,14 +49,17 @@ public class KubeWatcher implements Closeable {
     this.client = client;
 
     this.watches = new HashMap<>();
+    this.podsBeingWatched = new HashMap<>();
   }
 
   @Override
   public void close() throws IOException {
     this.client.close();
 
-    for (final Map.Entry<String, PodAnalyzer> entry : watches.entrySet()) {
-      entry.getValue().close();
+    for (final Map.Entry<String, List<PodAnalyzer>> entry : watches.entrySet()) {
+      for (final PodAnalyzer analyzer : entry.getValue()) {
+        analyzer.close();
+      }
     }
   }
 
@@ -62,19 +67,20 @@ public class KubeWatcher implements Closeable {
   public void peekALook() {
     LOGGER.log(Level.INFO, "Taking a look at the cluster situation..");
 
-    for (final Map.Entry<String, PodAnalyzer> entry : watches.entrySet()) {
-      final List<RuleAnalysis> newlySatisfiedRules = entry.getValue().checkResults();
+    for (final Map.Entry<String, List<PodAnalyzer>> entry : watches.entrySet()) {
+      final Pod pod = podsBeingWatched.get(entry.getKey());
+      final List<RuleAnalysis> newlySatisfiedRules = new ArrayList<>();
+      entry.getValue().forEach(a -> newlySatisfiedRules.addAll(a.checkResults()));
 
       if (!newlySatisfiedRules.isEmpty()) {
         final Map<String, String> handlerActions = new HashMap<>();
         handlers.forEach(handler -> {
           final String key = handler.getNotifyKey();
-          final String val = handler.handle(entry.getValue().getPod(),
-              newlySatisfiedRules);
+          final String val = handler.handle(pod, newlySatisfiedRules);
           handlerActions.put(key, val);
         });
-        notifiers.forEach(notifier -> notifier.notify(entry.getValue().getPod(),
-            newlySatisfiedRules, handlerActions));
+        notifiers.forEach(notifier -> notifier.notify(pod, newlySatisfiedRules,
+            handlerActions));
       }
     }
 
@@ -84,7 +90,7 @@ public class KubeWatcher implements Closeable {
   public void resetAnalysis(String namespace, String name, String ruleName) {
     final String podKey = KubeUtils.getPodKey(namespace, name);
     if (watches.containsKey(podKey)) {
-      watches.get(podKey).resetAnalysis(ruleName);
+      watches.get(podKey).forEach(a -> a.resetAnalysis(ruleName));
     }
   }
 
@@ -108,46 +114,76 @@ public class KubeWatcher implements Closeable {
     LOGGER.log(Level.INFO, "Updating watches.. done");
   }
 
+  private void beginAnalysisFor(String podKey) {
+    watches.get(podKey).forEach(PodAnalyzer::beginAnalysis);
+  }
+
   private void cleanupUnusedWatches(Set<String> keysFound) {
     final List<String> keysToRemove = new ArrayList<>();
-    for (final Entry<String, PodAnalyzer> entry : watches.entrySet()) {
+    for (final Entry<String, Pod> entry : podsBeingWatched.entrySet()) {
       if (!keysFound.contains(entry.getKey())) {
         keysToRemove.add(entry.getKey());
       }
     }
 
-    keysToRemove.forEach(key -> {
-      try {
-        watches.get(key).close();
-        watches.remove(key);
-        LOGGER.log(Level.INFO, () -> "Stopping watcher for " + key);
-      } catch (final IOException e) {
-        LOGGER.log(Level.SEVERE, "Unable to close watcher for " + key, e);
-      }
-    });
+    keysToRemove.forEach(this::stopHandlingPod);
   }
 
-  private void startWatchingPodsForRules(List<Rule> rules) {
+  private void closeWatchFor(String podKey) {
+    watches.get(podKey).forEach(a -> {
+      try {
+        a.close();
+      } catch (final IOException e) {
+        LOGGER.log(Level.SEVERE, "Unable to close a watcher for " + podKey, e);
+      }
+    });
+    LOGGER.log(Level.INFO, () -> "Stopping all watchers for " + podKey);
+  }
+
+  private void handlePod(Pod pod, List<Rule> rules) {
+    final String podKey = KubeUtils.getPodKey(pod);
+    final String podUid = KubeUtils.getPodUid(pod);
+
+    if (!podsBeingWatched.containsKey(podKey)) {
+      // as we don't know about this Pod, begin analysis
+      startHandlingPod(podKey, pod, rules);
+    } else if (!KubeUtils.getPodUid(podsBeingWatched.get(podKey)).equals(podUid)) {
+      // as we know about this Pod but the UID changed, restart analysis
+      stopHandlingPod(podKey);
+      startHandlingPod(podKey, pod, rules);
+    }
+  }
+
+  private void startHandlingPod(String podKey, Pod pod, List<Rule> rules) {
+    final List<PodAnalyzer> analyzers = AnalyzerUtils.setupAnalysis(client, pod, rules);
+
+    watches.put(podKey, analyzers);
+    podsBeingWatched.put(podKey, pod);
+    beginAnalysisFor(podKey);
+  }
+
+  private <T extends Rule> void startWatchingPodsForRules(List<T> rules) {
     final List<Pod> pods = client.getPods();
     final Set<String> keysFound = new HashSet<>();
 
     for (final Pod pod : pods) {
-      final String podKey = KubeUtils.getPodKey(pod);
+      keysFound.add(KubeUtils.getPodKey(pod));
 
-      if (!watches.containsKey(podKey)) {
-        final List<Rule> validRules = rules.stream()
-            .filter(f -> f.doesItSelect(pod))
-            .collect(Collectors.toList());
-
-        if (!validRules.isEmpty()) {
-          watches.put(podKey, new PodAnalyzer(client, pod, validRules));
-          watches.get(podKey).beginAnalysis();
-        }
+      final List<Rule> validRules = rules.stream()
+          .filter(f -> f.doesItSelect(pod))
+          .collect(Collectors.toList());
+      if (!validRules.isEmpty()) {
+        handlePod(pod, validRules);
       }
-      keysFound.add(podKey);
     }
 
     cleanupUnusedWatches(keysFound);
+  }
+
+  private void stopHandlingPod(String podKey) {
+    closeWatchFor(podKey);
+    watches.remove(podKey);
+    podsBeingWatched.remove(podKey);
   }
 
 }

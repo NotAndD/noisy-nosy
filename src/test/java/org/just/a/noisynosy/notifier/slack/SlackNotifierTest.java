@@ -4,7 +4,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.just.a.noisynosy.analyzer.analysis.RuleAnalysis;
-import org.just.a.noisynosy.rules.Rule;
+import org.just.a.noisynosy.rules.log.LogRule;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -108,7 +108,7 @@ public class SlackNotifierTest {
   }
 
   private RuleAnalysis givenAnalysis(int num) {
-    final Rule rule = new Rule();
+    final LogRule rule = new LogRule();
     rule.setMatchesInAnd(new ArrayList<>());
     rule.setName("test-rule-" + num);
     rule.setDescription("test-description-" + num);

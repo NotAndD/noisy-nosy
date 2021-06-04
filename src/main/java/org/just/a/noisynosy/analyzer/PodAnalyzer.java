@@ -11,9 +11,11 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import io.fabric8.kubernetes.api.model.Pod;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public abstract class PodAnalyzer implements Closeable {
 
   private static final Logger LOGGER = Logger.getLogger(PodAnalyzer.class.getName());

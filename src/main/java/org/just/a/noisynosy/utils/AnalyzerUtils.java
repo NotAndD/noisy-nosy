@@ -2,12 +2,13 @@ package org.just.a.noisynosy.utils;
 
 import org.just.a.noisynosy.analyzer.PodAnalyzer;
 import org.just.a.noisynosy.analyzer.log.PodLogAnalyzer;
+import org.just.a.noisynosy.analyzer.status.PodStatusAnalyzer;
 import org.just.a.noisynosy.k8s.KubeClient;
 import org.just.a.noisynosy.rules.Rule;
 import org.just.a.noisynosy.rules.RuleType;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -31,13 +32,15 @@ public final class AnalyzerUtils {
     switch (type) {
       case LOG:
         return new PodLogAnalyzer(client, pod, rules);
+      case STATUS:
+        return new PodStatusAnalyzer(client, pod, rules);
       default:
         throw new RuntimeException("Looks like some implementation is missing here..");
     }
   }
 
   private static Map<RuleType, List<Rule>> groupRulesByType(List<Rule> rules) {
-    final Map<RuleType, List<Rule>> result = new HashMap<>();
+    final Map<RuleType, List<Rule>> result = new EnumMap<>(RuleType.class);
     rules.forEach(rule -> {
       final RuleType ruleType = rule.ruleType();
       if (!result.containsKey(ruleType)) {

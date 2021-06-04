@@ -38,6 +38,11 @@ public class KubeClient implements Closeable {
     return client.pods().inNamespace(namespace).list().getItems();
   }
 
+  public Pod updatePodInfo(Pod pod) {
+    return client.pods().inNamespace(pod.getMetadata().getNamespace())
+        .withName(pod.getMetadata().getName()).get();
+  }
+
   public LogWatch watchPodLogs(String namespace, String name, OutputStream out) {
     return client.pods().inNamespace(namespace)
         .withName(name).tailingLines(1).watchLog(out);

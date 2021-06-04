@@ -24,6 +24,19 @@ watchfor:
     selectors-in-and:
     - namespace-match:
       - development
+      
+  status-rules:
+  - name: generic-check-status
+    description: a generic check to find status Errors
+    matches-in-or:
+    - on-restart: true
+      on-error: true
+      on-pending: true
+      error-threshold: 30000
+      pending-threshold: 30000
+    selectors-in-and:
+    - namespace-match:
+      - development
 
 handlers:
   delete-pod:

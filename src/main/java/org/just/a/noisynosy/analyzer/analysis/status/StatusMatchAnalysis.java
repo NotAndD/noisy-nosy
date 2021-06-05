@@ -2,6 +2,7 @@ package org.just.a.noisynosy.analyzer.analysis.status;
 
 import org.just.a.noisynosy.analyzer.analysis.MatchAnalysis;
 import org.just.a.noisynosy.rules.status.StatusMatch;
+import org.just.a.noisynosy.utils.ExplanationUtils;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.fabric8.kubernetes.api.model.ContainerStateTerminated;
 import io.fabric8.kubernetes.api.model.ContainerStatus;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodCondition;
@@ -127,6 +129,15 @@ public class StatusMatchAnalysis implements MatchAnalysis {
     });
   }
 
+  private void explainTerminatedState(ContainerStateTerminated state, String template,
+      String containerKey) {
+    final String reason = state.getReason();
+    final String message = ExplanationUtils.limitTo(state.getMessage(), 1024, true);
+    final Integer exitCode = state.getExitCode();
+
+    explanations.add(String.format(template, containerKey, exitCode, reason, message));
+  }
+
   private String getContainerKey(ContainerStatus status) {
     return status.getName() != null
         ? status.getName() : status.getContainerID();
@@ -172,24 +183,18 @@ public class StatusMatchAnalysis implements MatchAnalysis {
       final String containerKey = getContainerKey(status);
       if (status.getState().getWaiting() != null) {
         final String reason = status.getState().getWaiting().getReason();
-        explanations
-            .add(String.format("  <%s> is <Waiting> for Reason: %s", containerKey, reason));
+        explanations.add(String.format("  <%s> is <Waiting> for Reason: %s",
+            containerKey, reason));
       } else if (status.getState().getTerminated() != null) {
-        final String reason = status.getState().getTerminated().getReason();
-        final String message = status.getState().getTerminated().getMessage();
-        final Integer exitCode = status.getState().getTerminated().getExitCode();
-        explanations.add(String.format(
-            "  <%s> is <Terminated> with Exit Code <%s> for Reason: %s, with Message: %s",
-            containerKey, exitCode, reason, message));
+        explainTerminatedState(status.getState().getTerminated(),
+            "  <%s> is <Terminated> with Exit Code <%s> for Reason: %s, with Message:%n%s",
+            containerKey);
       }
 
       if (status.getLastState().getTerminated() != null) {
-        final String reason = status.getLastState().getTerminated().getReason();
-        final String message = status.getLastState().getTerminated().getMessage();
-        final Integer exitCode = status.getLastState().getTerminated().getExitCode();
-        explanations.add(String.format(
-            "  <%s> was <Terminated> with Exit Code <%s> for Reason: %s, with Message: %s",
-            containerKey, exitCode, reason, message));
+        explainTerminatedState(status.getLastState().getTerminated(),
+            "  <%s> was <Terminated> with Exit Code <%s> for Reason: %s, with Message:%n%s",
+            containerKey);
       }
     });
   }

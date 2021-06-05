@@ -2,7 +2,6 @@ package org.just.a.noisynosy.analyzer.analysis;
 
 import org.just.a.noisynosy.rules.Match;
 import org.just.a.noisynosy.rules.Rule;
-import org.just.a.noisynosy.utils.ExplanationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,12 +27,10 @@ public class RuleAnalysis {
   }
 
   public String getSatisfiedExplanation() {
-    // TODO limitTo should be called only inside for the message, not for whole
-    // explanation <----
-    return ExplanationUtils.limitTo(String.join("\n\n", matchAnalysis.stream()
+    return String.join("\n\n", matchAnalysis.stream()
         .filter(MatchAnalysis::isSatisfied)
         .map(MatchAnalysis::getSatisfiedExplanation)
-        .collect(Collectors.toList())), 1000, true);
+        .collect(Collectors.toList()));
   }
 
   public boolean isSatisfied() {

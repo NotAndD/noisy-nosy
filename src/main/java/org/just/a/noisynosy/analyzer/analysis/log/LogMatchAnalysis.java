@@ -2,6 +2,7 @@ package org.just.a.noisynosy.analyzer.analysis.log;
 
 import org.just.a.noisynosy.analyzer.analysis.MatchAnalysis;
 import org.just.a.noisynosy.rules.log.LogMatch;
+import org.just.a.noisynosy.utils.ExplanationUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,8 +22,8 @@ public class LogMatchAnalysis implements MatchAnalysis {
 
   @Override
   public String getSatisfiedExplanation() {
-    return String.join("\n", matches.stream()
-        .map(MatchingLog::getLine).collect(Collectors.toList()));
+    return ExplanationUtils.limitTo(String.join("\n", matches.stream()
+        .map(MatchingLog::getLine).collect(Collectors.toList())), 1024, true);
   }
 
   @Override

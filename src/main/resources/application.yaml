@@ -11,7 +11,7 @@ k8s:
 watchfor:
   log-rules:
   - name: generic-exception-check
-    description: a generic check to find Exceptions
+    description: is writing Exceptions in its log
     matches-in-or:
     - how-many: 3
       how-much: 120000
@@ -27,16 +27,16 @@ watchfor:
       
   status-rules:
   - name: generic-check-status
-    description: a generic check to find status Errors
+    description: has Errors in its Status
     matches-in-or:
     - on-restart: true
       on-error: true
       on-pending: true
       error-threshold: 30000
-      pending-threshold: 30000
+      pending-threshold: 300000
     selectors-in-and:
     - namespace-match:
-      - development
+      - monitoring
 
 handlers:
   delete-pod:
@@ -48,7 +48,7 @@ notifiers:
   noop:
     enabled: true
     single-template: |
-      Looks like {{pod-namespace}}/{{pod-name}} has a match with: {{rule-description}}.
+      Looks like {{pod-namespace}}/{{pod-name}} {{rule-description}}.
       --- match explanation ---
       {{satisfied-explanation}}
       ---
@@ -56,7 +56,7 @@ notifiers:
       - delete the pod with {{delete-action}}
       - reset the analysis with {{reset-action}}
     multiple-template: |
-      Looks like {{pod-namespace}}/{{pod-name}} has a match with multiple rules, such as: {{rule-description-0}}, {{rule-description-1}} and so on.
+      Looks like {{pod-namespace}}/{{pod-name}} {{rule-description-0}}, {{rule-description-1}} and so on.
       --- first match explanation ---
       {{satisfied-explanation-0}}
       ---
@@ -65,10 +65,10 @@ notifiers:
       - reset the analysis with {{reset-action}}
   slack:
     enabled: false
-    url: endpoint-for-slack-goes-here
+    url: this is a secret
     single-template: |
       Help!
-      Looks like {{pod-namespace}}/{{pod-name}} has a match with: {{rule-description}}.
+      Looks like `{{pod-namespace}}/{{pod-name}}` {{rule-description}}.
       ```
       {{satisfied-explanation}}
       ```
@@ -77,7 +77,7 @@ notifiers:
       - Nah, <{{reset-action}}|false alarm>
     multiple-template: |
       Help!
-      Looks like {{pod-namespace}}/{{pod-name}} has a match with multiple rules, such as: {{rule-description-0}}, {{rule-description-1}} and so on.
+      Looks like `{{pod-namespace}}/{{pod-name}}` {{rule-description-0}}, {{rule-description-1}} and so on.
       ```
       {{satisfied-explanation-0}}
       ```

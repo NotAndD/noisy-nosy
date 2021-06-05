@@ -11,6 +11,7 @@ import java.util.Map;
 
 import io.fabric8.kubernetes.api.model.ContainerStatus;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodCondition;
 
 public class StatusMatchAnalysis implements MatchAnalysis {
 
@@ -87,6 +88,7 @@ public class StatusMatchAnalysis implements MatchAnalysis {
     if (onErrorFrom != null && (match.getErrorThreshold() == null
         || Instant.now().minusMillis(match.getErrorThreshold())
             .isAfter(onErrorFrom))) {
+      explanations.add("Pod is in <Error> state from at least: " + onErrorFrom);
       wasSatisfied = true;
     }
   }
@@ -102,6 +104,7 @@ public class StatusMatchAnalysis implements MatchAnalysis {
     if (onPendingFrom != null && (match.getPendingThreshold() == null
         || Instant.now().minusMillis(match.getPendingThreshold())
             .isAfter(onPendingFrom))) {
+      explanations.add("Pod is in <Pending> state from at least: " + onPendingFrom);
       wasSatisfied = true;
     }
   }
@@ -116,6 +119,7 @@ public class StatusMatchAnalysis implements MatchAnalysis {
       } else {
         final Integer oldRestartCount = restartNumbers.get(containerKey);
         if (restartCount > oldRestartCount) {
+          explanations.add("Pod <Failed> and was <Restarted>");
           wasSatisfied = true;
           restartNumbers.put(containerKey, restartCount);
         }
@@ -146,20 +150,37 @@ public class StatusMatchAnalysis implements MatchAnalysis {
     return wasSatisfied;
   }
 
+  private void prepareConditionsExplanation(List<PodCondition> conditions) {
+    final Map<String, List<String>> conditionExplanation = new HashMap<>();
+    conditions.stream().forEach(condition -> {
+      final String status = condition.getStatus();
+      final String type = condition.getType();
+
+      if (!conditionExplanation.containsKey(status)) {
+        conditionExplanation.put(status, new ArrayList<>());
+      }
+      conditionExplanation.get(status).add(type);
+    });
+
+    explanations.add("Conditions:");
+    conditionExplanation.entrySet().forEach(entry -> explanations
+        .add(String.format("  %s: %s", entry.getKey(), entry.getValue())));
+  }
+
   private void prepareContainerStatusExplanation(List<ContainerStatus> statuses) {
     statuses.forEach(status -> {
       final String containerKey = getContainerKey(status);
-      explanations.add("Container: " + containerKey);
       if (status.getState().getWaiting() != null) {
         final String reason = status.getState().getWaiting().getReason();
-        explanations.add("Current Status: Waiting, Reason: " + reason);
+        explanations
+            .add(String.format("  <%s> is <Waiting> for Reason: %s", containerKey, reason));
       } else if (status.getState().getTerminated() != null) {
         final String reason = status.getState().getTerminated().getReason();
         final String message = status.getState().getTerminated().getMessage();
         final Integer exitCode = status.getState().getTerminated().getExitCode();
         explanations.add(String.format(
-            "Current Status: Terminated with Exit Code %s, Reason: %s, Message: %s",
-            exitCode, reason, message));
+            "  <%s> is <Terminated> with Exit Code <%s> for Reason: %s, with Message: %s",
+            containerKey, exitCode, reason, message));
       }
 
       if (status.getLastState().getTerminated() != null) {
@@ -167,25 +188,25 @@ public class StatusMatchAnalysis implements MatchAnalysis {
         final String message = status.getLastState().getTerminated().getMessage();
         final Integer exitCode = status.getLastState().getTerminated().getExitCode();
         explanations.add(String.format(
-            "Previous Status: Terminated with Exit Code %s, Reason: %s, Message: %s",
-            exitCode, reason, message));
+            "  <%s> was <Terminated> with Exit Code <%s> for Reason: %s, with Message: %s",
+            containerKey, exitCode, reason, message));
       }
     });
   }
 
   private void preparePodStatusExplanation(Pod pod) {
-    pod.getStatus().getConditions().forEach(condition -> {
-      explanations.add(String.format("Condition: %s, Status: %s",
-          condition.getType(), condition.getStatus()));
-    });
+    prepareConditionsExplanation(pod.getStatus().getConditions());
+
     final List<ContainerStatus> initContainerStatuses = pod.getStatus()
         .getInitContainerStatuses();
     if (initContainerStatuses != null && !initContainerStatuses.isEmpty()) {
+      explanations.add("Init Containers:");
       prepareContainerStatusExplanation(initContainerStatuses);
     }
     final List<ContainerStatus> containerStatuses = pod.getStatus()
         .getContainerStatuses();
     if (containerStatuses != null && !containerStatuses.isEmpty()) {
+      explanations.add("Containers:");
       prepareContainerStatusExplanation(containerStatuses);
     }
   }

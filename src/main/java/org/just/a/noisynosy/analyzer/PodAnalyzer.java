@@ -32,9 +32,6 @@ public abstract class PodAnalyzer implements Closeable {
   }
 
   public void beginAnalysis() {
-    LOGGER.log(Level.INFO, () -> String.format("Beginning analysis for pod %s/%s",
-        pod.getMetadata().getNamespace(), pod.getMetadata().getName()));
-
     setupAnalysis();
   }
 
@@ -42,12 +39,14 @@ public abstract class PodAnalyzer implements Closeable {
     progressAnalysis();
 
     final List<RuleAnalysis> result = analysis.stream()
+        .filter(a -> !a.wasProgressNoticed())
         .filter(RuleAnalysis::isSatisfied)
         .collect(Collectors.toList());
 
     if (!result.isEmpty()) {
       LOGGER.log(Level.INFO, () -> String.format("Rule / Rules satisfied for pod %s/%s",
           getPodNamespace(), getPodName()));
+      result.forEach(RuleAnalysis::noticeProgress);
     }
 
     return result;

@@ -40,6 +40,15 @@ public class WatchFor {
     LOGGER.log(Level.INFO, "Validating watch configuration.. done");
   }
 
+  public List<Rule> getAllRules() {
+    final List<Rule> result = new ArrayList<>();
+
+    result.addAll(logRules);
+    result.addAll(statusRules);
+
+    return result;
+  }
+
   private void checkLogRules() {
     if (logRules == null) {
       logRules = new ArrayList<>();

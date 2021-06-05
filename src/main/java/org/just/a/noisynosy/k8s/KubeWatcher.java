@@ -98,8 +98,9 @@ public class KubeWatcher implements Closeable {
   public void setup() {
     config.checkValidity();
 
-    if (config.getLogRules() != null) {
-      startWatchingPodsForRules(config.getLogRules());
+    final List<Rule> rules = config.getAllRules();
+    if (rules != null && !rules.isEmpty()) {
+      startWatchingPodsForRules(rules);
     }
   }
 
@@ -107,14 +108,17 @@ public class KubeWatcher implements Closeable {
   public void updateWatches() {
     LOGGER.log(Level.INFO, "Updating watches..");
 
-    if (config.getLogRules() != null) {
-      startWatchingPodsForRules(config.getLogRules());
+    final List<Rule> rules = config.getAllRules();
+    if (rules != null && !rules.isEmpty()) {
+      startWatchingPodsForRules(rules);
     }
 
     LOGGER.log(Level.INFO, "Updating watches.. done");
   }
 
   private void beginAnalysisFor(String podKey) {
+    LOGGER.log(Level.INFO, () -> String.format(
+        "Beginning analysis for pod %s", podKey));
     watches.get(podKey).forEach(PodAnalyzer::beginAnalysis);
   }
 
@@ -162,7 +166,7 @@ public class KubeWatcher implements Closeable {
     beginAnalysisFor(podKey);
   }
 
-  private <T extends Rule> void startWatchingPodsForRules(List<T> rules) {
+  private void startWatchingPodsForRules(List<Rule> rules) {
     final List<Pod> pods = client.getPods();
     final Set<String> keysFound = new HashSet<>();
 

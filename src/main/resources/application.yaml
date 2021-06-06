@@ -1,50 +1,81 @@
 server.port: 8080
 
+# on which url is NoisyNosy exposed?
+# This is used by notifiers to insert the right URL in the messages
 general:
   base-url: http://localhost:8080
 
+# Kubernetes specific configurations
 k8s:
   watch:
+    # time between different analysis iterations, in millis
     scheduled: 60000
+    # time between different setup iterations, in millis
     setup: 600000
 
+# under watchfor, all the rules which are in analysis for NoisyNosy
 watchfor:
+  # Log rules take a look at the log of Pods, searching for substrings inside lines
   log-rules:
   - name: generic-exception-check
     description: is writing Exceptions in its log
+    # matches may be either in OR or in AND (matches-in-and)
     matches-in-or:
+      # how many lines needs to contain the searched values ?
     - how-many: 3
+      # how much time (in missis) before a matching line shifts outside of interest ?
       how-much: 120000
+      # values may be either in OR (values-in-or) or in AND and are case sensitive
       values-in-and:
       - Caused by
     - how-many: 3
       how-much: 120000
       values-in-and:
       - Exception
+    # selectors may be either in OR (selectors-in-or) or in AND
     selectors-in-and:
+      # accepted namespaces 
     - namespace-match:
       - development
-      
+      # accepted labels
+      # labels-match:
+        # key: val
+      # accepted starting names of Pods
+      # pod-starts-with:
+        # - val
+  
+  # Status rules take a look at the PodStatus as seen by Kubernetes, searching for phases of the containers
   status-rules:
   - name: generic-check-status
     description: has Errors in its Status
+    # matches must be in OR for Status rules
     matches-in-or:
+      # a crashing Container is to be considered a problem?
     - on-restart: true
+      # a Pod with a Container going in Error is to be considered a problem ?
       on-error: true
+      # a pending Container is to be considered a problem ?
       on-pending: true
+      # time (in millis) before a Pod in Error is to be considered matching
       error-threshold: 30000
+      # time (in millis) before a Pod which is Pending is to be considered matching
       pending-threshold: 300000
     selectors-in-and:
     - namespace-match:
       - monitoring
 
+# Handlers enable REST APIs to perform actions on the matching Pods
 handlers:
+  # a matching Pod can be deleted (when manually asked) ?
   delete-pod:
     enabled: true
+  # a matching Pod can be considered as false alarm / manually solved (when manually asked) ?
   reset-analysis:
     enabled: true
 
+# Notifiers signal matching Pods with messages and may propose to do actions with a templating-system (sort-of)
 notifiers:
+  # noop just writes on the Logs
   noop:
     enabled: true
     single-template: |
@@ -63,8 +94,10 @@ notifiers:
       I could do the following:
       - delete the pod with {{delete-action}}
       - reset the analysis with {{reset-action}}
+  # send a Slack message to a provided web-hook
   slack:
     enabled: false
+    # inject this with a secret, ok?
     url: this is a secret
     single-template: |
       Help!

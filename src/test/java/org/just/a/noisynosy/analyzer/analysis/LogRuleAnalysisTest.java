@@ -11,33 +11,7 @@ import java.io.InputStreamReader;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
-public class RuleAnalysisTest {
-
-  @Test
-  public void rule_should_match_in_two_pieces() throws Exception {
-    final String firstPart = "Welcome!\n"
-        + "to the first part of the log\n"
-        + "which is pretty amazing but useless\n"
-        + "because this will not match\n"
-        + "without a second part.";
-    final String secondPart = "Luckily for you\n"
-        + "I come just in time\n"
-        + "to let the rule you are testing\n"
-        + "match correctly!";
-
-    final Rule rule = RuleMockUtils.givenLogRuleInAnd(
-        RuleMockUtils.givenLogMatchInAnd(2, "match"));
-    final RuleAnalysis analysis = new RuleAnalysis(rule);
-    makeAnalysisConsumeLog(analysis, firstPart);
-
-    Thread.sleep(30000L);
-
-    makeAnalysisConsumeLog(analysis, secondPart);
-
-    Assert.assertTrue(analysis.isSatisfied());
-    Assert.assertEquals("because this will not match\n"
-        + "match correctly!", analysis.getSatisfiedExplanation());
-  }
+public class LogRuleAnalysisTest {
 
   @Test
   public void rule_should_match_word_aaa() {
@@ -170,30 +144,6 @@ public class RuleAnalysisTest {
   }
 
   @Test
-  public void rule_should_not_match_in_two_pieces() throws Exception {
-    final String firstPart = "Welcome!\n"
-        + "to the first part of the log\n"
-        + "which is pretty amazing but useless\n"
-        + "because this will not match\n"
-        + "without a second part.";
-    final String secondPart = "Luckily for you\n"
-        + "I come just in time\n"
-        + "to let the rule you are testing\n"
-        + "match correctly!";
-
-    final Rule rule = RuleMockUtils.givenLogRuleInAnd(
-        RuleMockUtils.givenLogMatchInAnd(2, "match"));
-    final RuleAnalysis analysis = new RuleAnalysis(rule);
-    makeAnalysisConsumeLog(analysis, firstPart);
-
-    Thread.sleep(70000L);
-
-    makeAnalysisConsumeLog(analysis, secondPart);
-
-    Assert.assertFalse(analysis.isSatisfied());
-  }
-
-  @Test
   public void rule_should_not_match_word_ccc() {
     final String shortLog = "Hey there!\n"
         + "Did I tell you of that time where\n"
@@ -271,7 +221,7 @@ public class RuleAnalysisTest {
   @Test
   public void should_work_with_long_text_1() {
     final InputStream stream =
-        RuleAnalysisTest.class.getResourceAsStream("/log/long-text-1.txt");
+        LogRuleAnalysisTest.class.getResourceAsStream("/log/long-text-1.txt");
     final String longLog = new BufferedReader(new InputStreamReader(stream))
         .lines().collect(Collectors.joining("\n"));
 
@@ -287,7 +237,7 @@ public class RuleAnalysisTest {
   @Test
   public void should_work_with_long_text_2() {
     final InputStream stream =
-        RuleAnalysisTest.class.getResourceAsStream("/log/long-text-2.txt");
+        LogRuleAnalysisTest.class.getResourceAsStream("/log/long-text-2.txt");
     final String longLog = new BufferedReader(new InputStreamReader(stream))
         .lines().collect(Collectors.joining("\n"));
 
